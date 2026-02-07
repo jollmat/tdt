@@ -1,0 +1,13 @@
+BUILD
+------
+
+ng build --configuration production --base-href "/languify/"
+
+DEPLOY
+------
+
+mv dist/languify/browser/* dist/languify/   
+
+rmdir dist/languify/browser     
+
+npx angular-cli-ghpages --dir=dist/languify

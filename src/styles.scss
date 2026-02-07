@@ -1,1 +1,139 @@
 /* You can add global styles to this file, and also import other style files */
+
+$fontColor: rgb(217, 216, 216);
+$borderColor: rgb(77, 73, 73);
+
+body {
+    height: calc(100vh);
+    margin: 0px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: small;
+}
+
+.cursor-pointer { cursor: pointer; }
+
+.text-gray { color: #888; }
+
+.app {
+    &.desktop {
+        background-color: rgb(33, 31, 31);
+        .container {
+            background-color: rgb(33, 31, 31);
+            
+            border-right: 1px solid $borderColor;
+            border-left: 1px solid $borderColor;
+            
+            color: $fontColor;
+            min-width: 1200px;
+            max-width: 1600px;
+            height: calc(100vh);
+
+            .menu {
+                width: 30%;
+                height: calc(100vh);
+                padding: 15px 10px;
+                border-right: 1px solid $borderColor;
+                resize: horizontal;
+                overflow-y: auto;
+            }
+            .content {
+                height: calc(100vh);
+                padding: 0px;
+            }
+        }
+
+    }
+
+    &.tablet {
+        background-color: rgb(33, 31, 31);
+        color: snow;
+
+        .container {
+            min-width: 1200px;
+            max-width: 1600px;
+            height: calc(100vh);
+            
+            .menu {
+                width: 30%;
+                height: calc(100vh);
+                padding: 15px 10px;
+                overflow-y: auto;
+
+                .country { padding-left: 15px; }
+            }
+            .content {
+                height: calc(100vh);
+                padding: 0px;
+            }
+        }
+
+    }
+
+    &.mobile {
+        background-color: rgb(33, 31, 31);
+        color: snow;
+        width: 100%;
+
+        .container {
+            width: 100%;
+            height: calc(100vh);
+
+            .menu {
+                width: 100%;
+                overflow-y: auto;
+            }
+            .content {
+                height: calc(100vh);
+                padding: 0px 0px 15px 0px;
+
+                .video-wrapper {
+                    .video-mobile {
+                        width:100%;
+                    }
+                    video {
+                        width: 100%;
+                        height: auto;   /* keep aspect ratio */
+                        display: block; /* remove inline gap */
+                    }
+                }
+            }
+        }
+
+    }
+}
+
+
+.country { padding: 3px 5px 3px 15px; margin-left: 10px; border-left: 1px dashed $borderColor; }
+.ambit { padding-left: 25px; margin-left: 15px; border-left: 1px dashed $borderColor; }
+.channel-list {
+    border-radius: 6px;
+    padding: 0px 5px;
+    margin-bottom: 10px;
+    background-color: transparent;
+
+    .channel-line {
+        &.active {
+            padding: 3px 0px;
+            border-radius: 5px;
+
+            border: 0px solid $borderColor;
+            background-color: #000;
+            color: yellowgreen;
+        }
+        .channel { 
+            padding-left: 30px;
+            width: fit-content; 
+            color: deepskyblue; 
+            border-left: 1px dashed $borderColor;
+            i { &.fa-ban { color: dimgray; } }
+        }
+    }
+}
+
+.expand-icon {
+    width: 20px;
+    color: dimgray;
+}
+
+.h-30 { height: 30%; }
+.h-70 { height: 70%; }
