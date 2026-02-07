@@ -1,6 +1,17 @@
 <ng-container *ngIf="!deviceSettings.isMobile" [ngTemplateOutlet]="desktopLayout"></ng-container>
 <ng-container *ngIf="deviceSettings.isMobile" [ngTemplateOutlet]="mobileLayout"></ng-container>
 
+<ng-container *ngIf="deviceSettings.isMobile && errors.length>0">
+    <div class="d-flex flex-column w-100 alert alert-danger p-3">
+        <div>Errors found ({{errors.length}}):</div>
+        <ul>
+        <ng-container *ngFor="let error of errors">
+            <li>{{error | json}}</li>
+        </ng-container> 
+        </ul>
+    </div>
+</ng-container>
+
 <!-- Desktop layout -->
 <ng-template #desktopLayout>
     <div class="container d-flex flex-fill w-100">

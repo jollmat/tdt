@@ -62,11 +62,53 @@ export class HomeComponent implements OnDestroy, OnInit {
     isTablet: false
   }
 
+  errors: any[] = [];
+
   constructor(
     private readonly tdtChannelsService: TdtchannelsService,
     private readonly sanitizer: DomSanitizer,
     private readonly deviceDetactorService: DeviceDetectorService
   ) {
+
+    this.tvChannelsSubscription = this.tdtChannelsService.getTvChannels().subscribe({
+      next: (_tvChannelsResults) => {
+        this.tv = _tvChannelsResults;
+        console.log(this.tv);
+      }, error: (err) => {
+        this.errors.push(err);
+      }
+    });
+    this.radioStationsSubscription = this.tdtChannelsService.getRadioStations().subscribe({
+      next: (_tvChannelsResults) => {
+        this.radio = _tvChannelsResults;
+        console.log(this.tv);
+      }, error: (err) => {
+        this.errors.push(err);
+      }
+    });
+    this.deviceDetectionMobileSubscription = this.deviceDetactorService.isMobile.subscribe({
+      next: (_res) => {
+        this.deviceSettings.isMobile = _res;
+      }, error: (err) => {
+        this.errors.push(err);
+      }
+    });
+    this.deviceDetectionDesktopSubscription = this.deviceDetactorService.isDesktop.subscribe({
+      next: (_res) => {
+        this.deviceSettings.isDesktop = _res;
+      }, error: (err) => {
+        this.errors.push(err);
+      }
+    });
+    this.deviceDetectionTabletSubscription = this.deviceDetactorService.isTablet.subscribe({
+      next: (_res) => {
+        this.deviceSettings.isTablet = _res;
+      }, error: (err) => {
+        this.errors.push(err);
+      }
+    });
+
+    /*
     this.tvChannelsSubscription = this.tdtChannelsService.getTvChannels().subscribe((_tvChannelsResults) => {
       this.tv = _tvChannelsResults;
       console.log(this.tv);
@@ -75,6 +117,7 @@ export class HomeComponent implements OnDestroy, OnInit {
       this.radio = _radioStationsResults;
       console.log(this.radio);
     });
+
     this.deviceDetectionMobileSubscription = this.deviceDetactorService.isMobile.subscribe((_res) => {
       this.deviceSettings.isMobile = _res;
     });
@@ -84,6 +127,7 @@ export class HomeComponent implements OnDestroy, OnInit {
     this.deviceDetectionTabletSubscription = this.deviceDetactorService.isTablet.subscribe((_res) => {
       this.deviceSettings.isTablet = _res;
     });
+    */
   }
   
   toggleExpand(itemId: string) {
@@ -200,8 +244,12 @@ export class HomeComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
-    this.loadFavourites();
-    this.loadSelectedChannel();
+    try {
+      this.loadFavourites();
+      this.loadSelectedChannel();
+    } catch(err) {
+      this.errors.push(err);
+    }
   }
   
   ngOnDestroy(): void {
