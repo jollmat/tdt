@@ -69,12 +69,11 @@ export class HomeComponent implements OnDestroy, OnInit {
     private readonly sanitizer: DomSanitizer,
     private readonly deviceDetactorService: DeviceDetectorService
   ) {
-
     this.tvChannelsSubscription = this.tdtChannelsService.getTvChannels().subscribe({
       next: (_tvChannelsResults) => {
         this.tv = _tvChannelsResults;
-        console.log(this.tv);
       }, error: (err) => {
+        console.log('Error loading sources', err);
         this.errors.push(err);
       }
     });

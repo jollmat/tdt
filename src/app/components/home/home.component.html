@@ -1,7 +1,7 @@
 <ng-container *ngIf="!deviceSettings.isMobile" [ngTemplateOutlet]="desktopLayout"></ng-container>
 <ng-container *ngIf="deviceSettings.isMobile" [ngTemplateOutlet]="mobileLayout"></ng-container>
 
-<ng-container *ngIf="deviceSettings.isMobile && errors.length>0">
+<ng-container *ngIf="errors.length>0">
     <div class="d-flex flex-column w-100 alert alert-danger p-3">
         <div>Errors found ({{errors.length}}):</div>
         <ul>
