@@ -169,7 +169,7 @@ export class HomeComponent implements OnDestroy, OnInit {
           );
         } else {
           if (this.videoElement) {
-            this.videoElement.volume = 0.05;
+            this.videoElement.volume = (this.deviceSettings.isDesktop)?0.05:0.2;
             if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
               // Native HLS support (Safari)
               this.videoElement.src = videoSrc;
