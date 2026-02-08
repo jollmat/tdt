@@ -71,7 +71,7 @@ export class HomeComponent implements OnDestroy, OnInit {
   ) {
     this.tvChannelsSubscription = this.tdtChannelsService.getTvChannels().subscribe({
       next: (_tvChannelsResults) => {
-        this.tv = _tvChannelsResults;
+        this.tv = this.getSortedResponse(_tvChannelsResults);
         console.log('TV', this.tv);
       }, error: (err) => {
         console.log('Error loading tv channels', err);
@@ -80,7 +80,7 @@ export class HomeComponent implements OnDestroy, OnInit {
     });
     this.radioStationsSubscription = this.tdtChannelsService.getRadioStations().subscribe({
       next: (_radioSatationsResults) => {
-        this.radio = _radioSatationsResults;
+        this.radio = this.getSortedResponse(_radioSatationsResults);
         console.log('RADIO', this.radio);
       }, error: (err) => {
         console.log('Error loading radio stations', err);
@@ -108,27 +108,17 @@ export class HomeComponent implements OnDestroy, OnInit {
         this.errors.push(err);
       }
     });
+  }
 
-    /*
-    this.tvChannelsSubscription = this.tdtChannelsService.getTvChannels().subscribe((_tvChannelsResults) => {
-      this.tv = _tvChannelsResults;
-      console.log(this.tv);
+  private getSortedResponse(response: TdtChannelsResponse): TdtChannelsResponse {
+    response.countries.forEach((_country) => {
+      _country.ambits.forEach((_ambit) => {
+        _ambit.channels.sort((a,b) => {
+          return a.name.toLowerCase()>b.name.toLowerCase()?1:-1;
+        });
+      })
     });
-    this.radioStationsSubscription = this.tdtChannelsService.getRadioStations().subscribe((_radioStationsResults) => {
-      this.radio = _radioStationsResults;
-      console.log(this.radio);
-    });
-
-    this.deviceDetectionMobileSubscription = this.deviceDetactorService.isMobile.subscribe((_res) => {
-      this.deviceSettings.isMobile = _res;
-    });
-    this.deviceDetectionDesktopSubscription = this.deviceDetactorService.isDesktop.subscribe((_res) => {
-      this.deviceSettings.isDesktop = _res;
-    });
-    this.deviceDetectionTabletSubscription = this.deviceDetactorService.isTablet.subscribe((_res) => {
-      this.deviceSettings.isTablet = _res;
-    });
-    */
+    return response;
   }
   
   toggleExpand(itemId: string) {
@@ -201,9 +191,7 @@ export class HomeComponent implements OnDestroy, OnInit {
   loadFavourites() {
     const storedData = localStorage.getItem(this.APP_FAVOURITE_CHANNELS_KEY);
     if (storedData) {
-      this.favourites = (JSON.parse(storedData) as TdtChannelsResponse);
-      this.favourites.countries[0].ambits[0].channels.sort((a,b) => a.name>b.name ? 1:-1 );
-      this.favourites.countries[0].ambits[1].channels.sort((a,b) => a.name>b.name ? 1:-1 );
+      this.favourites = this.getSortedResponse(JSON.parse(storedData) as TdtChannelsResponse);
     }
   }
 
@@ -223,7 +211,6 @@ export class HomeComponent implements OnDestroy, OnInit {
   }
 
   toggleFavourite(tdtChannel: TdtChannel, ambitIdx?: number) {
-    console.log('toggleFavourite()', tdtChannel, ambitIdx);
     if (ambitIdx!==undefined) {
       if (!this.isFavourite(tdtChannel)) {
         this.favourites.countries[0].ambits[ambitIdx].channels.push(tdtChannel);
@@ -234,13 +221,11 @@ export class HomeComponent implements OnDestroy, OnInit {
       this.favourites.countries[0].ambits[0].channels = this.favourites.countries[0].ambits[0].channels.filter((_tdtChannel) => _tdtChannel.name!==tdtChannel.name);
       this.favourites.countries[0].ambits[1].channels = this.favourites.countries[0].ambits[1].channels.filter((_tdtChannel) => _tdtChannel.name!==tdtChannel.name);
     }
-    
     this.saveFavourites();
   }
 
   saveFavourites() {
-    this.favourites.countries[0].ambits[0].channels.sort((a,b) => a.name>b.name ? 1:-1 );
-    this.favourites.countries[0].ambits[1].channels.sort((a,b) => a.name>b.name ? 1:-1 );
+    this.favourites = this.getSortedResponse(this.favourites);
     localStorage.setItem(this.APP_FAVOURITE_CHANNELS_KEY, JSON.stringify(this.favourites));
   }
 
