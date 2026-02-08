@@ -18,7 +18,7 @@ export class TdtchannelsService {
     return this.http.get<TdtChannelsResponse>(this.TDT_JSON_URL_TV).pipe(
       catchError(err => {
         console.warn('API failed (CORS?), loading local JSON tv instead', err);
-        return this.http.get<TdtChannelsResponse>('assets/data/tv.json');
+        return this.http.get<TdtChannelsResponse>('data/tv.json');
       })
     );
   }
@@ -27,7 +27,7 @@ export class TdtchannelsService {
     return this.http.get<TdtChannelsResponse>(this.TDT_JSON_URL_RADIO).pipe(
       catchError(err => {
         console.warn('API failed (CORS?), loading local JSON radio instead', err);
-        return this.http.get<TdtChannelsResponse>('assets/data/radio.json');
+        return this.http.get<TdtChannelsResponse>('data/radio.json');
       })
     );
   }
