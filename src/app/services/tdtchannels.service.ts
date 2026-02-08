@@ -17,8 +17,9 @@ export class TdtchannelsService {
   getTvChannels(): Observable<TdtChannelsResponse> {
     return this.http.get<TdtChannelsResponse>(this.TDT_JSON_URL_TV).pipe(
       catchError(err => {
-        console.warn('API failed (CORS?), loading local JSON tv instead', err);
-        return this.http.get<TdtChannelsResponse>('data/tv.json');
+        const fallbackUrl = 'data/tv.json';
+        console.warn(`API failed (CORS?), loading local JSON tv instead from "${fallbackUrl}"`, err);
+        return this.http.get<TdtChannelsResponse>(fallbackUrl);
       })
     );
   }
@@ -26,8 +27,9 @@ export class TdtchannelsService {
   getRadioStations(): Observable<TdtChannelsResponse> {
     return this.http.get<TdtChannelsResponse>(this.TDT_JSON_URL_RADIO).pipe(
       catchError(err => {
-        console.warn('API failed (CORS?), loading local JSON radio instead', err);
-        return this.http.get<TdtChannelsResponse>('data/radio.json');
+        const fallbackUrl = 'data/radio.json';
+        console.warn(`API failed (CORS?), loading local JSON radio instead from "${fallbackUrl}"`, err);
+        return this.http.get<TdtChannelsResponse>(fallbackUrl);
       })
     );
   }

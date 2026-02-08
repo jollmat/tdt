@@ -72,15 +72,16 @@ export class HomeComponent implements OnDestroy, OnInit {
     this.tvChannelsSubscription = this.tdtChannelsService.getTvChannels().subscribe({
       next: (_tvChannelsResults) => {
         this.tv = _tvChannelsResults;
+        console.log('TV', this.tv);
       }, error: (err) => {
         console.log('Error loading tv channels', err);
         this.errors.push(err);
       }
     });
     this.radioStationsSubscription = this.tdtChannelsService.getRadioStations().subscribe({
-      next: (_tvChannelsResults) => {
-        this.radio = _tvChannelsResults;
-        console.log(this.tv);
+      next: (_radioSatationsResults) => {
+        this.radio = _radioSatationsResults;
+        console.log('RADIO', this.radio);
       }, error: (err) => {
         console.log('Error loading radio stations', err);
         this.errors.push(err);
