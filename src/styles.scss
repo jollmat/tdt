@@ -77,6 +77,8 @@ body {
         .container {
             width: 100%;
             height: calc(100vh);
+            padding-left:0px;
+            padding-right:0px;
 
             .menu {
                 width: 100%;
@@ -87,12 +89,15 @@ body {
                 padding: 0px 0px 15px 0px;
 
                 .video-wrapper {
+                    position: sticky;
+                    top:0px;
                     .video-mobile {
                         width:100%;
                     }
                     video {
                         width: 100%;
-                        height: auto;   /* keep aspect ratio */
+                        height: 100% !important;
+                        /*height: auto;    keep aspect ratio */
                         display: block; /* remove inline gap */
                     }
                 }
