@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { catchError, Observable } from 'rxjs';
 import { TdtChannelsResponse } from '../model/interfaces/tdt-channels-response.interface';
 
 @Injectable({
@@ -15,11 +15,21 @@ export class TdtchannelsService {
   ) { }
 
   getTvChannels(): Observable<TdtChannelsResponse> {
-    return this.http.get<TdtChannelsResponse>(this.TDT_JSON_URL_TV);
+    return this.http.get<TdtChannelsResponse>(this.TDT_JSON_URL_TV).pipe(
+      catchError(err => {
+        console.warn('API failed (CORS?), loading local JSON tv instead', err);
+        return this.http.get<TdtChannelsResponse>('assets/data/tv.json');
+      })
+    );
   }
 
   getRadioStations(): Observable<TdtChannelsResponse> {
-    return this.http.get<TdtChannelsResponse>(this.TDT_JSON_URL_RADIO);
+    return this.http.get<TdtChannelsResponse>(this.TDT_JSON_URL_RADIO).pipe(
+      catchError(err => {
+        console.warn('API failed (CORS?), loading local JSON radio instead', err);
+        return this.http.get<TdtChannelsResponse>('assets/data/radio.json');
+      })
+    );
   }
 
   getYoutubeVideId(url: string): Observable<{id: { videoId: string }}> {

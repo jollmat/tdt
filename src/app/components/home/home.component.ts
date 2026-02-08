@@ -73,7 +73,7 @@ export class HomeComponent implements OnDestroy, OnInit {
       next: (_tvChannelsResults) => {
         this.tv = _tvChannelsResults;
       }, error: (err) => {
-        console.log('Error loading sources', err);
+        console.log('Error loading tv channels', err);
         this.errors.push(err);
       }
     });
@@ -82,6 +82,7 @@ export class HomeComponent implements OnDestroy, OnInit {
         this.radio = _tvChannelsResults;
         console.log(this.tv);
       }, error: (err) => {
+        console.log('Error loading radio stations', err);
         this.errors.push(err);
       }
     });
