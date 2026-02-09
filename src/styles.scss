@@ -39,6 +39,21 @@ body {
             .content {
                 height: calc(100vh);
                 padding: 0px;
+
+                .epg-wrapper {
+                    max-height: 140px;
+                    overflow-y: auto;
+                    table {
+                        width: 640px;
+                        tbody {
+                            tr {
+                                td {
+                                    color: rgb(217, 216, 216) !important;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -64,6 +79,21 @@ body {
             .content {
                 height: calc(100vh);
                 padding: 0px;
+
+                .epg-wrapper {
+                    max-height: 140px;
+                    overflow-y: auto;
+                    table {
+                        width: 640px;
+                        tbody {
+                            tr {
+                                td {
+                                    color: rgb(217, 216, 216) !important;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -102,6 +132,21 @@ body {
                         display: block; /* remove inline gap */
                     }
                 }
+
+                .epg-wrapper {
+                    max-height: 140px;
+                    overflow-y: auto;
+                    table {
+                        width: 640px;
+                        tbody {
+                            tr {
+                                td {
+                                    color: rgb(217, 216, 216) !important;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -127,7 +172,7 @@ body {
             color: yellowgreen;
         }
         .channel { 
-            padding-left: 30px;
+            padding-left: 20px;
             padding-right: 5px;
             width: fit-content; 
             color: deepskyblue; 

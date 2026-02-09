@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { TdtchannelsService } from '../../services/tdtchannels.service';
 import { Subscription } from 'rxjs';
-import { TdtChannel, TdtChannelsResponse } from '../../model/interfaces/tdt-channels-response.interface';
+import { TdtChannel, TdtChannelsResponse, TdtEpgItem } from '../../model/interfaces/tdt-channels-response.interface';
 import { CommonModule } from '@angular/common';
 import Hls from 'hls.js';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -21,9 +21,14 @@ export class HomeComponent implements OnDestroy, OnInit {
 
   tvChannelsSubscription?: Subscription;
   radioStationsSubscription?: Subscription;
+  epgTvSubscription?: Subscription;
+  epgRadioSubscription?: Subscription;
 
   tv?: TdtChannelsResponse;
   radio?: TdtChannelsResponse;
+
+  epg: TdtEpgItem[] = [];
+  currentEpg?: TdtEpgItem;
 
   favourites: TdtChannelsResponse = {
     countries: [
@@ -108,6 +113,45 @@ export class HomeComponent implements OnDestroy, OnInit {
         this.errors.push(err);
       }
     });
+
+    this.loadEpg();
+  }
+
+  private loadEpg() {
+    this.epg = [];
+    this.epgTvSubscription = this.tdtChannelsService.getEpg('https://www.tdtchannels.com/epg/TV.json').subscribe({
+      next: (_epgResults) => {
+        this.epg = this.epg.concat(_epgResults.map((_epg) => {
+          _epg.events.forEach((_event) => {
+            const hiNum = Number(_event.hi)*1000;
+            const hfNum = Number(_event.hf)*1000;
+            _event.hi = new Date(hiNum);
+            _event.hf = new Date(hfNum);
+          });
+          return _epg;
+        }));
+        console.log(this.epg);
+      }, 
+      error: (err) => {
+        this.errors.push(err);
+      }
+    });
+    this.epgRadioSubscription = this.tdtChannelsService.getEpg('https://www.tdtchannels.com/epg/RADIO.json').subscribe({
+      next: (_epgResults) => {
+        this.epg = this.epg.concat(_epgResults.map((_epg) => {
+          _epg.events.forEach((_event) => {
+            const hiNum = Number(_event.hi)*1000;
+            const hfNum = Number(_event.hf)*1000;
+            _event.hi = new Date(hiNum);
+            _event.hf = new Date(hfNum);
+          });
+          return _epg;
+        }));
+        console.log(this.epg);
+      }, error: (err) => {
+        this.errors.push(err);
+      }
+    });
   }
 
   private getSortedResponse(response: TdtChannelsResponse): TdtChannelsResponse {
@@ -153,6 +197,11 @@ export class HomeComponent implements OnDestroy, OnInit {
     const videoFormat = (this.selectedChannel && this.selectedChannel.options?.length>0)?this.selectedChannel.options[0].format : undefined;
 
     this.channelSourceFormat =  videoFormat;
+
+    // EPG
+    this.currentEpg = this.epg.find((_epg) => _epg.name===this.selectedChannel?.epg_id);
+
+    console.log('currentEpg', this.currentEpg);
 
     if (this.videoElement) {
       if (!this.selectedChannel) {
@@ -249,6 +298,12 @@ export class HomeComponent implements OnDestroy, OnInit {
     }
     if (this.deviceDetectionTabletSubscription){
       this.deviceDetectionTabletSubscription.unsubscribe();
+    }
+    if (this.epgTvSubscription) {
+      this.epgTvSubscription.unsubscribe();
+    }
+    if (this.epgRadioSubscription) {
+      this.epgRadioSubscription.unsubscribe();
     }
   }
 

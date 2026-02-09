@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, Observable } from 'rxjs';
-import { TdtChannelsResponse } from '../model/interfaces/tdt-channels-response.interface';
+import { catchError, Observable, of } from 'rxjs';
+import { TdtChannelsResponse, TdtEpgItem } from '../model/interfaces/tdt-channels-response.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +32,40 @@ export class TdtchannelsService {
         return this.http.get<TdtChannelsResponse>(fallbackUrl);
       })
     );
+  }
+
+  getEpg(url: string): Observable<TdtEpgItem[]> {
+    return this.http.get<TdtEpgItem[]>(url);
+    /*
+    return of ([
+      { 
+        name: 'La1.TV', 
+        events: [
+          { 
+            hi: new Date(1770511800),
+            hf: new Date(1770517200),
+            t: 'Dr. Nice: Corazones rotos',
+            d: 'Neiss y Lea se dirigen a una excursión de pesca padre-hija cuando se produce un terrible accidente.',
+            c: 'https://www.movistarplus.es/recorte/n/caratula5/MTVEP4238219'
+          },
+          { 
+            hi: new Date(1770517200),
+            hf: new Date(1770526800),
+            t: 'Noticias 24H',
+            d: 'Noticias de los servicios informativos del Canal 24 Horas. Producido por Televisión Española, este canal está dedicado íntegramente a ofrecer información de actualidad y es el más antiguo de los canales de este tipo en España.',
+            c: 'https://www.movistarplus.es/recorte/n/caratula5/F4315170'
+          },
+          { 
+            hi: new Date(1770526800),
+            hf: new Date(1770530400),
+            t: 'Noticias 24H',
+            d: 'Neiss y Lea se dirigen a una excursión de pesca padre-hija cuando se produce un terrible accidente.',
+            c: 'https://www.movistarplus.es/recorte/n/caratula5/F4315170'
+          }
+        ] 
+      }
+    ]);
+    */
   }
 
   getYoutubeVideId(url: string): Observable<{id: { videoId: string }}> {

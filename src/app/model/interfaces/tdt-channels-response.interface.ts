@@ -1,5 +1,6 @@
 export interface TdtChannelsResponse {
-    countries: TdtChannelsCountry[]
+    countries: TdtChannelsCountry[],
+    epg?: TdtEpgSource
 }
 
 export interface TdtChannelsCountry {
@@ -27,4 +28,23 @@ export interface TdtChannelOption {
     geo2?: string,
     lang?: string,
     res?: string
+}
+
+export interface TdtEpgSource {
+    json?: string,
+    xml?: string
+}
+
+export interface TdtEpgItem {
+    name: string,
+    events: TdtEpgItemEvent[]
+}
+
+export interface TdtEpgItemEvent {
+    hi: Date,
+    hf: Date,
+    t: string, // Title
+    d: string, // Description
+    g?: any,
+    c?: string // Image
 }
