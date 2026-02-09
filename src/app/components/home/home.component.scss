@@ -1,3 +1,7 @@
 .selected-channel-info {
     margin-bottom: 30px;
+
+    &.mobile {  }
+    &.tablet { width: 640px; }
+    &.desktop { width: 640px; }
 }

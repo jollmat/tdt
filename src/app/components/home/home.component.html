@@ -1,4 +1,5 @@
-<ng-container *ngIf="!deviceSettings.isMobile" [ngTemplateOutlet]="desktopLayout"></ng-container>
+<ng-container *ngIf="deviceSettings.isDesktop" [ngTemplateOutlet]="desktopLayout"></ng-container>
+<ng-container *ngIf="deviceSettings.isTablet" [ngTemplateOutlet]="tabletLayout"></ng-container>
 <ng-container *ngIf="deviceSettings.isMobile" [ngTemplateOutlet]="mobileLayout"></ng-container>
 
 <ng-container *ngIf="errors.length>0">
@@ -25,13 +26,10 @@
         </div>
         <!-- Left Menu End -->
         <!-- Content -->
-        <div class="content flex-grow-1 d-flex flex-column align-items-center" [ngClass]="{'justify-content-center':!deviceSettings.isMobile,'justify-content-start':deviceSettings.isMobile}">
+        <div class="content flex-grow-1 d-flex flex-column align-items-center justify-content-center">
 
-            <ng-container *ngIf="!deviceSettings.isMobile">
-                <i *ngIf="selectedChannel" class="fas fa-close cursor-pointer fs-4 mb-2 text-gray" (click)="selectedChannel=undefined;openChannel(undefined)"></i>
-                <ng-container [ngTemplateOutlet]="channelInfo"></ng-container>
-            </ng-container>
-
+            <ng-container [ngTemplateOutlet]="channelInfo"></ng-container>
+            
             <div class="d-flex flex-column justify-content-center align-items-center w-100" style="overflow: hidden;">
                 <video #video controls autoplay muted playsinline width="640" height="360"></video>
                 <ng-container [ngTemplateOutlet]="epgTemplate"></ng-container>
@@ -70,6 +68,62 @@
     </div>
 </ng-template>
 <!-- End Desktop layout -->
+
+<!-- Tablet layout -->
+<ng-template #tabletLayout>
+    <div class="container d-flex flex-fill w-100">
+        <!-- Left Menu -->
+        <div class="menu d-flex flex-column align-items-end gap-2">
+            <div class="w-100 d-flex align-items-center">
+                <button class="btn btn-sm btn-danger mb-3" *ngIf="!(expandedItems.length===0 && expandedItemsBk.length>0)" [disabled]="expandedItems.length===0" (click)="collapseAll()">CollapseAll</button>
+                <button class="btn btn-sm btn-danger mb-3" *ngIf="expandedItems.length===0 && expandedItemsBk.length>0" (click)="restoreCollapsed()">Restore collapsed</button>
+            </div>
+            <ng-container [ngTemplateOutlet]="menuLayout"></ng-container>
+        </div>
+        <!-- Left Menu End -->
+        <!-- Content -->
+        <div class="content flex-grow-1 d-flex flex-column align-items-center justify-content-center">
+
+            <ng-container [ngTemplateOutlet]="channelInfo"></ng-container>
+            
+            <div class="d-flex flex-column justify-content-center align-items-center w-100" style="overflow: hidden;">
+                <video #video controls autoplay muted playsinline width="640" height="360"></video>
+                <ng-container [ngTemplateOutlet]="epgTemplate"></ng-container>
+            </div>
+
+            <ng-container *ngIf="channelSourceFormat==='youtube' && safeUrl">
+                <iframe
+                    src="https://www.youtube.com/embed/live_stream?channel=UCuPHaVBv7cd-wWx3ztpALQw"
+                    frameborder="0"
+                    allowfullscreen>
+                </iframe>
+                <!--
+                <iframe
+                    width="640"
+                    height="360"
+                    [src]="safeUrl"
+                    title="YouTube video player"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen>
+                </iframe>
+                -->
+            </ng-container>
+            
+            <div class="w-100 d-flex justify-content-center align-items-center mt-3" *ngIf="!selectedChannel || selectedChannel?.options?.length===0">
+                <ng-container *ngIf="!selectedChannel">
+                    <span>Select a channel</span>
+                </ng-container>
+                <ng-container *ngIf="selectedChannel?.options?.length===0">
+                    <i class="fas fa-exclamation-circle text-danger me-2"></i><span>Not available URL</span>
+                </ng-container>
+            </div>
+            
+        </div>
+        <!-- Content End -->
+    </div>
+</ng-template>
+<!-- End Tablet layout -->
 
 <!-- Mobile layout -->
 <ng-template #mobileLayout>
@@ -161,7 +215,7 @@
                                         <div class="w-100 d-flex flex-column channel-list gap-2">
                                         <ng-container *ngFor="let channel of ambit.channels">
                                             <div class="d-flex justify-content-between align-items-center w-100 pe-2 channel-line" [ngClass]="{'active': selectedChannel!==undefined && selectedChannel.name===channel.name}">
-                                                <span class="cursor-pointer channel d-flex align-items-center text-wrap text-break" (click)="openChannel(channel, sourceIdx)">
+                                                <span class="cursor-pointer channel text-truncate" (click)="openChannel(channel, sourceIdx)">
                                                     <i *ngIf="channel.options.length>0 && channel.options[0].format==='m3u8'" class="fas fa-tv text-light cursor-pointer me-2"></i>
                                                     <i *ngIf="channel.options.length>0 && channel.options[0].format==='youtube'" class="fab fa-youtube text-danger cursor-pointer me-2"></i>
                                                     <i *ngIf="channel.options.length>0 && channel.options[0].format==='stream'" class="fas fa-wifi text-light cursor-pointer me-2"></i>
@@ -196,16 +250,13 @@
 </ng-template>
 
 <ng-template #channelInfo>
-    <div class="d-flex justify-content-center align-items-center w-100 mb-3 selected-channel-info p-3">
+    <div class="d-flex justify-content-between align-items-center mb-1 selected-channel-info p-3" [ngClass]="{'desktop': deviceSettings.isDesktop,'tablet':deviceSettings.isTablet,'mobile':deviceSettings.isMobile}">
         <ng-container *ngIf="selectedChannel">
-            <div class="d-flex align-items-baseline me-2">
+            <div class="d-flex align-items-baseline me-2 text-truncate">
                 <div class="fs-3 me-3">{{selectedChannel.name}}</div>
                 <small *ngIf="channelSourceFormat">{{selectedChannel ? '- '+channelSourceFormat+' -':''}}</small>
             </div>
-            <!--
-            <i *ngIf="isFavourite(selectedChannel)" class="fas fa-heart"></i>
-            <i *ngIf="!isFavourite(selectedChannel)" class="far fa-heart"></i>
-            -->
+            <i class="fas fa-close cursor-pointer fs-4 mb-2 text-gray" (click)="selectedChannel=undefined;openChannel(undefined)"></i>
         </ng-container>
     </div>
 </ng-template>
@@ -213,7 +264,7 @@
 <ng-template #epgTemplate>
     <ng-container *ngIf="currentEpg && currentEpg.events && currentEpg.events.length>0">
 
-        <ng-container *ngIf="!deviceSettings.isMobile">
+        <ng-container *ngIf="deviceSettings.isDesktop">
             <div class="d-flex justify-content-center w-100 epg-wrapper mt-4">
                 <table class="table table-sm table-dark table-hover">
                     <tbody>

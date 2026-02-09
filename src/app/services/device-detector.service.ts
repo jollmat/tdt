@@ -42,16 +42,14 @@ export class DeviceDetectorService {
   }
 
   checkMobile(): boolean {
-    const ua = navigator.userAgent;
-    return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(ua);
+    return window.innerWidth<600 || window.innerWidth<window.innerHeight;
   }
 
   checkTablet(): boolean {
-    const ua = navigator.userAgent;
-    return /iPad|Tablet/i.test(ua);
+    return (window.innerWidth<1200 && window.innerWidth>=600 && window.innerWidth>window.innerHeight);
   }
 
   checkDesktop(): boolean {
-    return !this.checkMobile() && !this.checkTablet();
+    return window.innerWidth>=1200;
   }
 }

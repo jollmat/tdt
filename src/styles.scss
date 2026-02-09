@@ -70,10 +70,11 @@ body {
     &.tablet {
         background-color: rgb(33, 31, 31);
         color: snow;
+        font-size: medium;
 
         .container {
-            min-width: 1200px;
-            max-width: 1600px;
+            min-width: 600px;
+            max-width: 1200px;
             height: calc(100vh);
             
             .menu {

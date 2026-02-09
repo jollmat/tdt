@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { TdtchannelsService } from '../../services/tdtchannels.service';
 import { interval, Subscription } from 'rxjs';
 import { TdtChannel, TdtChannelsResponse, TdtEpgItem, TdtEpgItemEvent } from '../../model/interfaces/tdt-channels-response.interface';
@@ -14,7 +14,7 @@ import { DeviceDetectorService } from '../../services/device-detector.service';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
-export class HomeComponent implements OnDestroy, OnInit {
+export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
 
   APP_FAVOURITE_CHANNELS_KEY = 'APP_FAVOURITE_CHANNELS_KEY';
   APP_SELECTED_CHANNEL_KEY = 'APP_SELECTED_CHANNEL_KEY';
@@ -307,6 +307,11 @@ export class HomeComponent implements OnDestroy, OnInit {
     } catch(err) {
       this.errors.push(err);
     }
+  }
+
+  ngAfterViewInit(): void {
+    console.log('Calling checkDevice() from service');
+    this.deviceDetactorService.checkDevice();
   }
   
   ngOnDestroy(): void {
