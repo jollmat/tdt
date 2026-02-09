@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { TdtchannelsService } from '../../services/tdtchannels.service';
-import { Subscription } from 'rxjs';
-import { TdtChannel, TdtChannelsResponse, TdtEpgItem } from '../../model/interfaces/tdt-channels-response.interface';
+import { interval, Subscription } from 'rxjs';
+import { TdtChannel, TdtChannelsResponse, TdtEpgItem, TdtEpgItemEvent } from '../../model/interfaces/tdt-channels-response.interface';
 import { CommonModule } from '@angular/common';
 import Hls from 'hls.js';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -29,6 +29,7 @@ export class HomeComponent implements OnDestroy, OnInit {
 
   epg: TdtEpgItem[] = [];
   currentEpg?: TdtEpgItem;
+  epgInterval$!: Subscription;
 
   favourites: TdtChannelsResponse = {
     countries: [
@@ -130,7 +131,7 @@ export class HomeComponent implements OnDestroy, OnInit {
           });
           return _epg;
         }));
-        console.log(this.epg);
+        this.scrollToActiveEpgItem();
       }, 
       error: (err) => {
         this.errors.push(err);
@@ -147,11 +148,28 @@ export class HomeComponent implements OnDestroy, OnInit {
           });
           return _epg;
         }));
-        console.log(this.epg);
+        this.scrollToActiveEpgItem();
       }, error: (err) => {
         this.errors.push(err);
       }
     });
+  }
+
+  isEpgItemEventActive(itemEvent: TdtEpgItemEvent): boolean {
+    const now = new Date();
+    return itemEvent.hi.getTime()<=now.getTime() && itemEvent.hf.getTime()>=now.getTime();
+  }
+
+  scrollToActiveEpgItem() {
+    const container = document.querySelector('.epg-wrapper');
+    const activeRow = container?.querySelector('tr.active');
+
+    if (container && activeRow) {
+      activeRow?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
   }
 
   private getSortedResponse(response: TdtChannelsResponse): TdtChannelsResponse {
@@ -200,8 +218,7 @@ export class HomeComponent implements OnDestroy, OnInit {
 
     // EPG
     this.currentEpg = this.epg.find((_epg) => _epg.name===this.selectedChannel?.epg_id);
-
-    console.log('currentEpg', this.currentEpg);
+    setTimeout(() => this.scrollToActiveEpgItem(), 500);
 
     if (this.videoElement) {
       if (!this.selectedChannel) {
@@ -282,6 +299,11 @@ export class HomeComponent implements OnDestroy, OnInit {
     try {
       this.loadFavourites();
       this.loadSelectedChannel();
+
+      // EPG reloads
+      this.epgInterval$ = interval(60000).subscribe(() => {
+        this.loadEpg();
+      });
     } catch(err) {
       this.errors.push(err);
     }
@@ -290,21 +312,12 @@ export class HomeComponent implements OnDestroy, OnInit {
   ngOnDestroy(): void {
     this.hls?.destroy();
 
-    if (this.deviceDetectionMobileSubscription){
-      this.deviceDetectionMobileSubscription.unsubscribe();
-    }
-    if (this.deviceDetectionDesktopSubscription){
-      this.deviceDetectionDesktopSubscription.unsubscribe();
-    }
-    if (this.deviceDetectionTabletSubscription){
-      this.deviceDetectionTabletSubscription.unsubscribe();
-    }
-    if (this.epgTvSubscription) {
-      this.epgTvSubscription.unsubscribe();
-    }
-    if (this.epgRadioSubscription) {
-      this.epgRadioSubscription.unsubscribe();
-    }
+    this.deviceDetectionMobileSubscription?.unsubscribe();
+    this.deviceDetectionDesktopSubscription?.unsubscribe();
+    this.deviceDetectionTabletSubscription?.unsubscribe();
+    this.epgTvSubscription?.unsubscribe();
+    this.epgRadioSubscription?.unsubscribe();
+    this.epgInterval$?.unsubscribe();
   }
 
 }

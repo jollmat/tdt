@@ -3,6 +3,9 @@
 $fontColor: rgb(217, 216, 216);
 $borderColor: rgb(77, 73, 73);
 
+$epgItemColor: rgb(138, 137, 137);
+$epgItemActiveColor: rgb(217, 216, 216);
+
 body {
     height: calc(100vh);
     margin: 0px;
@@ -48,7 +51,12 @@ body {
                         tbody {
                             tr {
                                 td {
-                                    color: rgb(217, 216, 216) !important;
+                                    color: $epgItemColor !important;
+                                }
+                                &.active {
+                                    td {
+                                        color: $epgItemActiveColor !important;
+                                    }
                                 }
                             }
                         }
@@ -88,7 +96,12 @@ body {
                         tbody {
                             tr {
                                 td {
-                                    color: rgb(217, 216, 216) !important;
+                                    color: $epgItemColor !important;
+                                }
+                                &.active {
+                                    td {
+                                        color: $epgItemActiveColor !important;
+                                    }
                                 }
                             }
                         }
@@ -134,14 +147,19 @@ body {
                 }
 
                 .epg-wrapper {
-                    max-height: 140px;
+                    max-height: 90px;
                     overflow-y: auto;
                     table {
-                        width: 640px;
+                        font-size: small;
                         tbody {
                             tr {
                                 td {
-                                    color: rgb(217, 216, 216) !important;
+                                    color: $epgItemColor !important;
+                                }
+                                &.active {
+                                    td {
+                                        color: $epgItemActiveColor !important;
+                                    }
                                 }
                             }
                         }

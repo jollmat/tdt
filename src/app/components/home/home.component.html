@@ -34,22 +34,7 @@
 
             <div class="d-flex flex-column justify-content-center align-items-center w-100" style="overflow: hidden;">
                 <video #video controls autoplay muted playsinline width="640" height="360"></video>
-
-                <ng-container *ngIf="currentEpg && currentEpg.events && currentEpg.events.length>0">
-                    <div class="d-flex justify-content-center w-100 epg-wrapper mt-4">
-                        <table class="table table-sm table-dark table-hover">
-                            <tbody>
-                                <ng-container *ngFor="let epgItem of currentEpg.events">
-                                <tr>
-                                    <td>{{epgItem.t}}</td>
-                                    <td>{{ epgItem.hi | date:'HH:mm' }}h</td>
-                                    <td>{{ epgItem.hf | date:'HH:mm' }}h</td>
-                                </tr>
-                                </ng-container>
-                            </tbody>
-                        </table>
-                    </div>
-                </ng-container>
+                <ng-container [ngTemplateOutlet]="epgTemplate"></ng-container>
             </div>
 
             <ng-container *ngIf="channelSourceFormat==='youtube' && safeUrl">
@@ -90,7 +75,7 @@
 <ng-template #mobileLayout>
     <div class="container d-flex flex-fill w-100">
         <div class="content flex-grow-1 d-flex flex-column align-items-center" [ngClass]="{'justify-content-center':!deviceSettings.isMobile,'justify-content-start':deviceSettings.isMobile}">
-            <div class="d-flex align-items-start w-100 h-30 p-0 video-wrapper pb-3">
+            <div class="d-flex align-items-start w-100 h-30 p-0 video-wrapper">
                 <video #video autoplay playsinline controls class="w-100"></video>
             </div>
 
@@ -118,7 +103,7 @@
                     <i class="fas fa-exclamation-circle text-danger me-2"></i><span>Not available URL</span>
                 </ng-container>
             </div>
-            <div class="d-flex w-100 p-3 h-70" style="overflow: auto;">
+            <div class="d-flex flex-column w-100 p-3 h-70" style="overflow: auto;">
                 <ng-container [ngTemplateOutlet]="menuLayout"></ng-container>
             </div>
         </div>
@@ -128,6 +113,8 @@
 
 <ng-template #menuLayout>
     <div class="d-flex flex-column w-100 flex-grow-1">
+        <ng-container *ngIf="deviceSettings.isMobile" [ngTemplateOutlet]="epgTemplate"></ng-container>
+
         <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'TV', data: tv, sourceIdx: 0}"></ng-container>
         <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'Radio', data: radio, sourceIdx: 1}"></ng-container>
         <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'Other', data: favourites, sourceIdx: undefined}"></ng-container>
@@ -221,4 +208,42 @@
             -->
         </ng-container>
     </div>
+</ng-template>
+
+<ng-template #epgTemplate>
+    <ng-container *ngIf="currentEpg && currentEpg.events && currentEpg.events.length>0">
+
+        <ng-container *ngIf="!deviceSettings.isMobile">
+            <div class="d-flex justify-content-center w-100 epg-wrapper mt-4">
+                <table class="table table-sm table-dark table-hover">
+                    <tbody>
+                        <ng-container *ngFor="let epgItem of currentEpg.events">
+                        <tr [ngClass]="{'active': isEpgItemEventActive(epgItem)}">
+                            <td>{{epgItem.t}}</td>
+                            <td>{{ epgItem.hi | date:'HH:mm' }}h</td>
+                            <td>{{ epgItem.hf | date:'HH:mm' }}h</td>
+                        </tr>
+                        </ng-container>
+                    </tbody>
+                </table>
+            </div>
+        </ng-container>
+
+        <ng-container *ngIf="deviceSettings.isMobile">
+            <div class="w-100 epg-wrapper mt-1 mb-4">
+                <table class="table table-sm table-dark table-hover w-100">
+                    <tbody>
+                        <ng-container *ngFor="let epgItem of currentEpg.events; let idx = index">
+                        <tr [ngClass]="{'active': isEpgItemEventActive(epgItem)}">
+                            <td>{{epgItem.t}}</td>
+                            <td>{{ epgItem.hi | date:'HH:mm' }}h</td>
+                            <td>{{ epgItem.hf | date:'HH:mm' }}h</td>
+                        </tr>
+                        </ng-container>
+                    </tbody>
+                </table>
+            </div>
+        </ng-container>
+
+    </ng-container>
 </ng-template>
