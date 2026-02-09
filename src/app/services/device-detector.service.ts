@@ -9,6 +9,7 @@ export class DeviceDetectorService {
   isDesktop = new BehaviorSubject(false);
   isTablet = new BehaviorSubject(false);
   isMobile = new BehaviorSubject(false);
+  isLandscape = new BehaviorSubject(false);
 
   constructor(
     private readonly ngZone: NgZone,
@@ -33,23 +34,29 @@ export class DeviceDetectorService {
     this.isDesktop.next(this.checkDesktop());
     this.isMobile.next(this.checkMobile());
     this.isTablet.next(this.checkTablet());
+    this.isLandscape.next(this.checkLandscape());
 
     console.log({
       isMobile: this.isMobile.getValue(),
       isTablet: this.isTablet.getValue(),
-      isDesktop: this.isDesktop.getValue()
+      isDesktop: this.isDesktop.getValue(),
+      isLandscape: this.isLandscape.getValue()
     });
   }
 
   checkMobile(): boolean {
-    return window.innerWidth<600 || window.innerWidth<window.innerHeight;
+    return window.innerWidth<700;
   }
 
   checkTablet(): boolean {
-    return (window.innerWidth<1200 && window.innerWidth>=600 && window.innerWidth>window.innerHeight);
+    return (window.innerWidth<=1024 && window.innerWidth>=700);
   }
 
   checkDesktop(): boolean {
-    return window.innerWidth>=1200;
+    return window.innerWidth>1024;
+  }
+
+  checkLandscape(): boolean {
+    return window.innerWidth>window.innerHeight;
   }
 }

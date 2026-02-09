@@ -16,8 +16,9 @@ import { DeviceDetectorService } from '../../services/device-detector.service';
 })
 export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
 
-  APP_FAVOURITE_CHANNELS_KEY = 'APP_FAVOURITE_CHANNELS_KEY';
-  APP_SELECTED_CHANNEL_KEY = 'APP_SELECTED_CHANNEL_KEY';
+  APP_TDT_FAVOURITE_CHANNELS_KEY = 'APP_TDT_FAVOURITE_CHANNELS_KEY';
+  APP_TDT_SELECTED_CHANNEL_KEY = 'APP_TDT_SELECTED_CHANNEL_KEY';
+  APP_TDT_EXPANDED_NODES = 'APP_TDT_EXPANDED_NODES';
 
   tvChannelsSubscription?: Subscription;
   radioStationsSubscription?: Subscription;
@@ -96,6 +97,9 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     this.deviceDetectionMobileSubscription = this.deviceDetactorService.isMobile.subscribe({
       next: (_res) => {
         this.deviceSettings.isMobile = _res;
+        if (this.selectedChannel) {
+          setTimeout(() => this.openChannel(this.selectedChannel), 500);
+        }
       }, error: (err) => {
         this.errors.push(err);
       }
@@ -103,6 +107,9 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     this.deviceDetectionDesktopSubscription = this.deviceDetactorService.isDesktop.subscribe({
       next: (_res) => {
         this.deviceSettings.isDesktop = _res;
+        if (this.selectedChannel) {
+          setTimeout(() => this.openChannel(this.selectedChannel), 500);
+        }
       }, error: (err) => {
         this.errors.push(err);
       }
@@ -110,6 +117,9 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     this.deviceDetectionTabletSubscription = this.deviceDetactorService.isTablet.subscribe({
       next: (_res) => {
         this.deviceSettings.isTablet = _res;
+        if (this.selectedChannel) {
+          setTimeout(() => this.openChannel(this.selectedChannel), 500);
+        }
       }, error: (err) => {
         this.errors.push(err);
       }
@@ -189,6 +199,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     } else {
       this.expandedItems.push(itemId);
     }
+    this.saveExpandedNodes();
   }
 
   isExpanded(itemId: string): boolean {
@@ -222,11 +233,11 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
 
     if (this.videoElement) {
       if (!this.selectedChannel) {
-        localStorage.removeItem(this.APP_SELECTED_CHANNEL_KEY);
+        localStorage.removeItem(this.APP_TDT_SELECTED_CHANNEL_KEY);
         this.videoElement.src = videoSrc;
       } else {
 
-        localStorage.setItem(this.APP_SELECTED_CHANNEL_KEY, JSON.stringify(this.selectedChannel));
+        localStorage.setItem(this.APP_TDT_SELECTED_CHANNEL_KEY, JSON.stringify(this.selectedChannel));
 
         if (this.channelSourceFormat==='youtube') {
           const youtubeVideoId = this.tdtChannelsService.getYoutubeVideId(videoSrc); // videoSrc
@@ -255,19 +266,26 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
   }
 
   loadFavourites() {
-    const storedData = localStorage.getItem(this.APP_FAVOURITE_CHANNELS_KEY);
+    const storedData = localStorage.getItem(this.APP_TDT_FAVOURITE_CHANNELS_KEY);
     if (storedData) {
       this.favourites = this.getSortedResponse(JSON.parse(storedData) as TdtChannelsResponse);
     }
   }
 
   loadSelectedChannel() {
-    const storedChannel = localStorage.getItem(this.APP_SELECTED_CHANNEL_KEY);
+    const storedChannel = localStorage.getItem(this.APP_TDT_SELECTED_CHANNEL_KEY);
     if (storedChannel) {
       this.selectedChannel = JSON.parse(storedChannel) as TdtChannel;
       setTimeout(() => {
         this.openChannel(this.selectedChannel);
       }, 1000);
+    }
+  }
+
+  loadExpandedNodes() {
+    const storedData = localStorage.getItem(this.APP_TDT_EXPANDED_NODES);
+    if (storedData) {
+      this.expandedItems = JSON.parse(storedData) as string[];
     }
   }
 
@@ -292,13 +310,18 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
 
   saveFavourites() {
     this.favourites = this.getSortedResponse(this.favourites);
-    localStorage.setItem(this.APP_FAVOURITE_CHANNELS_KEY, JSON.stringify(this.favourites));
+    localStorage.setItem(this.APP_TDT_FAVOURITE_CHANNELS_KEY, JSON.stringify(this.favourites));
+  }
+
+  saveExpandedNodes() {
+    localStorage.setItem(this.APP_TDT_EXPANDED_NODES, JSON.stringify(this.expandedItems));
   }
 
   ngOnInit(): void {
     try {
       this.loadFavourites();
       this.loadSelectedChannel();
+      this.loadExpandedNodes();
 
       // EPG reloads
       this.epgInterval$ = interval(60000).subscribe(() => {
