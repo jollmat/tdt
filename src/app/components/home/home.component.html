@@ -220,6 +220,7 @@
                         <ng-container *ngFor="let epgItem of currentEpg.events">
                         <tr [ngClass]="{'active': isEpgItemEventActive(epgItem)}">
                             <td>{{epgItem.t}}</td>
+                            <td>{{ epgItem.hi | date:'dd.MM.yyyy' }}</td>
                             <td>{{ epgItem.hi | date:'HH:mm' }}h</td>
                             <td>{{ epgItem.hf | date:'HH:mm' }}h</td>
                         </tr>
@@ -236,6 +237,7 @@
                         <ng-container *ngFor="let epgItem of currentEpg.events; let idx = index">
                         <tr [ngClass]="{'active': isEpgItemEventActive(epgItem)}">
                             <td>{{epgItem.t}}</td>
+                            <td>{{ epgItem.hi | date:'dd.MM.yyyy' }}h</td>
                             <td>{{ epgItem.hi | date:'HH:mm' }}h</td>
                             <td>{{ epgItem.hf | date:'HH:mm' }}h</td>
                         </tr>
