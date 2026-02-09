@@ -236,7 +236,9 @@
                     <tbody>
                         <ng-container *ngFor="let epgItem of currentEpg.events; let idx = index">
                         <tr [ngClass]="{'active': isEpgItemEventActive(epgItem)}">
-                            <td>{{epgItem.t}}</td>
+                            <td>
+                                <span>{{epgItem.t}}</span>
+                            </td>
                             <td>{{ epgItem.hi | date:'dd.MM.yyyy' }}h</td>
                             <td>{{ epgItem.hi | date:'HH:mm' }}h</td>
                             <td>{{ epgItem.hf | date:'HH:mm' }}h</td>
@@ -248,4 +250,9 @@
         </ng-container>
 
     </ng-container>
+</ng-template>
+
+<!-- EPG tooltip Template -->
+<ng-template #tooltipTemplate let-img>
+  <img [src]="img" width="120" />
 </ng-template>
