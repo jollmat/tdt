@@ -149,6 +149,8 @@ body {
                 .epg-wrapper {
                     max-height: 90px;
                     overflow-y: auto;
+                    position: sticky;
+                    top: -5px;
                     table {
                         font-size: small;
                         tbody {
