@@ -231,8 +231,8 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
       return;
     }
 
-    const channelChanged = !this.selectedChannel || channel.epg_id!==this.selectedChannel.epg_id;
-    console.log({channelChanged});
+    const channelChanged = this.selectedChannel && channel.name!==this.selectedChannel.name;
+    console.log({currentChannel:(this.selectedChannel?.name), newChannel: channel.name, changed: channelChanged});
 
     if (channelChanged || this.firstLoad()) {
 
