@@ -14,7 +14,6 @@ export class DeviceDetectorService {
   constructor(
     private readonly ngZone: NgZone,
   ) {
-
     // Listen to window resize
     this.ngZone.runOutsideAngular(() => {
       fromEvent(window, 'resize')
@@ -45,15 +44,15 @@ export class DeviceDetectorService {
   }
 
   checkMobile(): boolean {
-    return window.innerWidth<700;
+    return window.innerWidth<700 || window.innerHeight<=430  ;
   }
 
   checkTablet(): boolean {
-    return window.innerWidth<=1024 && window.innerWidth>=700;
+    return window.innerWidth<1200 && window.innerWidth>=700 && window.innerHeight>430;
   }
 
   checkDesktop(): boolean {
-    return window.innerWidth>1024;
+    return window.innerWidth>=1200;
   }
 
   checkLandscape(): boolean {

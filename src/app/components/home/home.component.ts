@@ -282,8 +282,24 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
           }
         }
       }
+    } else {
+      if (this.videoElement) {
+        const videoSrc = (this.selectedChannel && this.selectedChannel.options?.length>0)?this.selectedChannel.options[0].url : '';
+        const videoFormat = (this.selectedChannel && this.selectedChannel.options?.length>0)?this.selectedChannel.options[0].format : undefined;
+        if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+            // Native HLS support (Safari)
+            this.videoElement.src = videoSrc;
+            this.videoElement.play().catch((e) => console.warn('Error on play', e, this.videoElement));
+          } else if (Hls.isSupported()) {
+            // HLS.js fallback for other browsers
+            this.hls = new Hls();
+            this.hls.loadSource(videoSrc);
+            this.hls.attachMedia(this.videoElement);
+          } else {
+            console.error('HLS not supported in this browser');
+          }
+      }
     }
-
     
   }
 
