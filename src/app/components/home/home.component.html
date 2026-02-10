@@ -71,7 +71,7 @@
 
 <!-- Tablet layout -->
 <ng-template #tabletLayout>
-    <div class="container d-flex flex-fill w-100">
+    <div class="container d-flex flex-fill w-100" [ngClass]="{'landscape': deviceSettings.isLandscape}">
         <!-- Left Menu -->
         <ng-container *ngIf="deviceSettings.isLandscape">
             <div class="menu d-flex flex-column align-items-end gap-2">
@@ -84,11 +84,10 @@
         </ng-container>
         <!-- Left Menu End -->
         <!-- Content -->
-        <div class="content flex-grow-1 d-flex flex-column align-items-center justify-content-center">
-
-            <ng-container [ngTemplateOutlet]="channelInfo"></ng-container>
+        <div class="content flex-grow-1 d-flex flex-column align-items-center justify-content-center" [ngClass]="{'justify-content-around': deviceSettings.isLandscape}">
             
             <div class="d-flex flex-column justify-content-center align-items-center w-100" style="overflow: hidden;">
+                <ng-container *ngIf="deviceSettings.isLandscape" [ngTemplateOutlet]="channelInfo"></ng-container>
                 <video #video controls autoplay muted playsinline width="600"></video>
                 <ng-container [ngTemplateOutlet]="epgTemplate"></ng-container>
             </div>
@@ -260,7 +259,8 @@
 </ng-template>
 
 <ng-template #channelInfo>
-    <div class="d-flex justify-content-between align-items-center mb-1 selected-channel-info p-3" [ngClass]="{'desktop': deviceSettings.isDesktop,'tablet':deviceSettings.isTablet,'mobile':deviceSettings.isMobile}">
+    <div class="d-flex justify-content-between align-items-center mb-1 selected-channel-info p-3" 
+    [ngClass]="{'desktop': deviceSettings.isDesktop,'tablet':deviceSettings.isTablet,'mobile':deviceSettings.isMobile}">
         <ng-container *ngIf="selectedChannel">
             <div class="d-flex align-items-baseline me-2 text-truncate" [ngClass]="{'w-100': deviceSettings.isDesktop}">
                 <div class="fs-3 me-3">{{selectedChannel.name}}</div>
@@ -274,8 +274,8 @@
 <ng-template #epgTemplate>
     <ng-container *ngIf="currentEpg && currentEpg.events && currentEpg.events.length>0">
 
-        <ng-container *ngIf="deviceSettings.isDesktop">
-            <div class="d-flex justify-content-center w-100 epg-wrapper mt-4">
+        <ng-container *ngIf="deviceSettings.isDesktop || (deviceSettings.isTablet && deviceSettings.isLandscape)">
+            <div class="d-flex justify-content-center w-100 epg-wrapper mt-4" [ngClass]="{'mt-5': deviceSettings.isTablet && deviceSettings.isLandscape}">
                 <table class="table table-sm table-dark table-hover">
                     <tbody>
                         <ng-container *ngFor="let epgItem of currentEpg.events">

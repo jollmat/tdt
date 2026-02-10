@@ -76,11 +76,9 @@ body {
             min-width: 600px;
             max-width: 1200px;
             height: calc(100vh);
-            /*
             &.landscape {
-                font-size: large;
+                font-size: medium;
             }
-            */
             .menu {
                 width: 30%;
                 height: calc(100vh);
@@ -97,7 +95,7 @@ body {
                     max-height: 140px;
                     overflow-y: auto;
                     table {
-                        width: 640px;
+                        width: 600px;
                         tbody {
                             tr {
                                 td {
