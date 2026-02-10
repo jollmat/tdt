@@ -224,15 +224,15 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     this.videoElement = this.videoRef?.nativeElement;
 
     if (!channel) {
+      this.selectedChannel = undefined;
       localStorage.removeItem(this.APP_TDT_SELECTED_CHANNEL_KEY);
       if (this.videoElement) {
         this.videoElement.src = '';
       }
-      return;
     }
 
-    const channelChanged = this.selectedChannel && channel.name!==this.selectedChannel.name;
-    console.log({currentChannel:(this.selectedChannel?.name), newChannel: channel.name, changed: channelChanged});
+    const channelChanged = JSON.stringify(channel?.name)!==JSON.stringify(this.selectedChannel?.name);
+    console.log({currentChannel:(this.selectedChannel?.name), newChannel: channel?.name, changed: channelChanged});
 
     if (channelChanged || this.firstLoad()) {
 
