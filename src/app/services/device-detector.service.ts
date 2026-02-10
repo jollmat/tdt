@@ -49,7 +49,7 @@ export class DeviceDetectorService {
   }
 
   checkTablet(): boolean {
-    return (window.innerWidth<=1024 && window.innerWidth>=700);
+    return window.innerWidth<=1024 && window.innerWidth>=700;
   }
 
   checkDesktop(): boolean {

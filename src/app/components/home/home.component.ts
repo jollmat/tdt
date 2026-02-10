@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { TdtchannelsService } from '../../services/tdtchannels.service';
 import { interval, Subscription } from 'rxjs';
 import { TdtChannel, TdtChannelsResponse, TdtEpgItem, TdtEpgItemEvent } from '../../model/interfaces/tdt-channels-response.interface';
@@ -59,17 +59,22 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
   deviceDetectionMobileSubscription?: Subscription;
   deviceDetectionTabletSubscription?: Subscription;
   deviceDetectionDesktopSubscription?: Subscription;
+  deviceDetectionLandscapeSubscription?: Subscription;
   deviceSettings: {
     isMobile: boolean,
     isDesktop: boolean,
-    isTablet: boolean
+    isTablet: boolean,
+    isLandscape: boolean
   } = {
     isMobile: false,
     isDesktop: false,
-    isTablet: false
+    isTablet: false,
+    isLandscape: false
   }
 
   errors: any[] = [];
+
+  firstLoad = signal(true);
 
   constructor(
     private readonly tdtChannelsService: TdtchannelsService,
@@ -97,9 +102,6 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     this.deviceDetectionMobileSubscription = this.deviceDetactorService.isMobile.subscribe({
       next: (_res) => {
         this.deviceSettings.isMobile = _res;
-        if (this.selectedChannel) {
-          setTimeout(() => this.openChannel(this.selectedChannel), 500);
-        }
       }, error: (err) => {
         this.errors.push(err);
       }
@@ -107,9 +109,6 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     this.deviceDetectionDesktopSubscription = this.deviceDetactorService.isDesktop.subscribe({
       next: (_res) => {
         this.deviceSettings.isDesktop = _res;
-        if (this.selectedChannel) {
-          setTimeout(() => this.openChannel(this.selectedChannel), 500);
-        }
       }, error: (err) => {
         this.errors.push(err);
       }
@@ -117,9 +116,13 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     this.deviceDetectionTabletSubscription = this.deviceDetactorService.isTablet.subscribe({
       next: (_res) => {
         this.deviceSettings.isTablet = _res;
-        if (this.selectedChannel) {
-          setTimeout(() => this.openChannel(this.selectedChannel), 500);
-        }
+      }, error: (err) => {
+        this.errors.push(err);
+      }
+    });
+    this.deviceDetectionLandscapeSubscription = this.deviceDetactorService.isLandscape.subscribe({
+      next: (_res) => {
+        this.deviceSettings.isLandscape = _res;
       }, error: (err) => {
         this.errors.push(err);
       }
@@ -218,51 +221,70 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
   openChannel(channel?: TdtChannel, sourceIndex?: number) {
     console.log('openChannel()', channel);
 
-    this.selectedChannel = channel;
-    this.selectedChannelSourceIdx = sourceIndex;
-
     this.videoElement = this.videoRef?.nativeElement;
-    const videoSrc = (this.selectedChannel && this.selectedChannel.options?.length>0)?this.selectedChannel.options[0].url : '';
-    const videoFormat = (this.selectedChannel && this.selectedChannel.options?.length>0)?this.selectedChannel.options[0].format : undefined;
 
-    this.channelSourceFormat =  videoFormat;
+    if (!channel) {
+      localStorage.removeItem(this.APP_TDT_SELECTED_CHANNEL_KEY);
+      if (this.videoElement) {
+        this.videoElement.src = '';
+      }
+      return;
+    }
 
-    // EPG
-    this.currentEpg = this.epg.find((_epg) => _epg.name===this.selectedChannel?.epg_id);
-    setTimeout(() => this.scrollToActiveEpgItem(), 500);
+    const channelChanged = !this.selectedChannel || channel.epg_id!==this.selectedChannel.epg_id;
+    console.log({channelChanged});
 
-    if (this.videoElement) {
-      if (!this.selectedChannel) {
-        localStorage.removeItem(this.APP_TDT_SELECTED_CHANNEL_KEY);
-        this.videoElement.src = videoSrc;
-      } else {
+    if (channelChanged || this.firstLoad()) {
 
-        localStorage.setItem(this.APP_TDT_SELECTED_CHANNEL_KEY, JSON.stringify(this.selectedChannel));
+      this.firstLoad.set(false);
 
-        if (this.channelSourceFormat==='youtube') {
-          const youtubeVideoId = this.tdtChannelsService.getYoutubeVideId(videoSrc); // videoSrc
-          this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-            `https://www.youtube-nocookie.com/embed/${youtubeVideoId}`
-          );
+      this.selectedChannel = channel;
+      this.selectedChannelSourceIdx = sourceIndex;
+      
+      const videoSrc = (this.selectedChannel && this.selectedChannel.options?.length>0)?this.selectedChannel.options[0].url : '';
+      const videoFormat = (this.selectedChannel && this.selectedChannel.options?.length>0)?this.selectedChannel.options[0].format : undefined;
+
+      this.channelSourceFormat =  videoFormat;
+
+      // EPG
+      this.currentEpg = this.epg.find((_epg) => _epg.name===this.selectedChannel?.epg_id);
+      setTimeout(() => this.scrollToActiveEpgItem(), 500);
+
+      if (this.videoElement) {
+        if (!this.selectedChannel) {
+          localStorage.removeItem(this.APP_TDT_SELECTED_CHANNEL_KEY);
+          this.videoElement.src = videoSrc;
         } else {
-          if (this.videoElement) {
-            this.videoElement.volume = (this.deviceSettings.isDesktop)?0.05:0.2;
-            if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-              // Native HLS support (Safari)
-              this.videoElement.src = videoSrc;
-              this.videoElement.play().catch((e) => console.warn('Error on play', e, this.videoElement));
-            } else if (Hls.isSupported()) {
-              // HLS.js fallback for other browsers
-              this.hls = new Hls();
-              this.hls.loadSource(videoSrc);
-              this.hls.attachMedia(this.videoElement);
-            } else {
-              console.error('HLS not supported in this browser');
+
+          localStorage.setItem(this.APP_TDT_SELECTED_CHANNEL_KEY, JSON.stringify(this.selectedChannel));
+
+          if (this.channelSourceFormat==='youtube') {
+            const youtubeVideoId = this.tdtChannelsService.getYoutubeVideId(videoSrc); // videoSrc
+            this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+              `https://www.youtube-nocookie.com/embed/${youtubeVideoId}`
+            );
+          } else {
+            if (this.videoElement) {
+              this.videoElement.volume = (this.deviceSettings.isDesktop)?0.05:0.2;
+              if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                // Native HLS support (Safari)
+                this.videoElement.src = videoSrc;
+                this.videoElement.play().catch((e) => console.warn('Error on play', e, this.videoElement));
+              } else if (Hls.isSupported()) {
+                // HLS.js fallback for other browsers
+                this.hls = new Hls();
+                this.hls.loadSource(videoSrc);
+                this.hls.attachMedia(this.videoElement);
+              } else {
+                console.error('HLS not supported in this browser');
+              }
             }
           }
         }
       }
     }
+
+    
   }
 
   loadFavourites() {
@@ -343,6 +365,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     this.deviceDetectionMobileSubscription?.unsubscribe();
     this.deviceDetectionDesktopSubscription?.unsubscribe();
     this.deviceDetectionTabletSubscription?.unsubscribe();
+    this.deviceDetectionLandscapeSubscription?.unsubscribe();
     this.epgTvSubscription?.unsubscribe();
     this.epgRadioSubscription?.unsubscribe();
     this.epgInterval$?.unsubscribe();

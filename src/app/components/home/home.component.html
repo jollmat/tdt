@@ -73,13 +73,15 @@
 <ng-template #tabletLayout>
     <div class="container d-flex flex-fill w-100">
         <!-- Left Menu -->
-        <div class="menu d-flex flex-column align-items-end gap-2">
-            <div class="w-100 d-flex align-items-center">
-                <button class="btn btn-sm btn-danger mb-3" *ngIf="!(expandedItems.length===0 && expandedItemsBk.length>0)" [disabled]="expandedItems.length===0" (click)="collapseAll()">CollapseAll</button>
-                <button class="btn btn-sm btn-danger mb-3" *ngIf="expandedItems.length===0 && expandedItemsBk.length>0" (click)="restoreCollapsed()">Restore collapsed</button>
+        <ng-container *ngIf="deviceSettings.isLandscape">
+            <div class="menu d-flex flex-column align-items-end gap-2">
+                <div class="w-100 d-flex align-items-center">
+                    <button class="btn btn-sm btn-danger mb-3" *ngIf="!(expandedItems.length===0 && expandedItemsBk.length>0)" [disabled]="expandedItems.length===0" (click)="collapseAll()">CollapseAll</button>
+                    <button class="btn btn-sm btn-danger mb-3" *ngIf="expandedItems.length===0 && expandedItemsBk.length>0" (click)="restoreCollapsed()">Restore collapsed</button>
+                </div>
+                <ng-container [ngTemplateOutlet]="menuLayout"></ng-container>
             </div>
-            <ng-container [ngTemplateOutlet]="menuLayout"></ng-container>
-        </div>
+        </ng-container>
         <!-- Left Menu End -->
         <!-- Content -->
         <div class="content flex-grow-1 d-flex flex-column align-items-center justify-content-center">
@@ -87,7 +89,7 @@
             <ng-container [ngTemplateOutlet]="channelInfo"></ng-container>
             
             <div class="d-flex flex-column justify-content-center align-items-center w-100" style="overflow: hidden;">
-                <video #video controls autoplay muted playsinline width="640" height="360"></video>
+                <video #video controls autoplay muted playsinline width="600"></video>
                 <ng-container [ngTemplateOutlet]="epgTemplate"></ng-container>
             </div>
 
@@ -118,6 +120,12 @@
                     <i class="fas fa-exclamation-circle text-danger me-2"></i><span>Not available URL</span>
                 </ng-container>
             </div>
+
+            <ng-container *ngIf="!deviceSettings.isLandscape">
+                <div class="d-flex flex-column p-3 pt-5 h-70" style="overflow: auto;width:600px;">
+                    <ng-container [ngTemplateOutlet]="menuLayout"></ng-container>
+                </div>
+            </ng-container>
             
         </div>
         <!-- Content End -->
@@ -129,7 +137,7 @@
 <ng-template #mobileLayout>
     <div class="container d-flex flex-fill w-100">
         <div class="content flex-grow-1 d-flex flex-column align-items-center" [ngClass]="{'justify-content-center':!deviceSettings.isMobile,'justify-content-start':deviceSettings.isMobile}">
-            <div class="d-flex align-items-start w-100 h-30 p-0 video-wrapper">
+            <div class="d-flex align-items-start w-100 p-0 video-wrapper" [ngClass]="{'h-30':deviceSettings.isLandscape}">
                 <video #video autoplay playsinline controls class="w-100"></video>
             </div>
            
@@ -157,7 +165,7 @@
                     <i class="fas fa-exclamation-circle text-danger me-2"></i><span>Not available URL</span>
                 </ng-container>
             </div>
-            <div class="d-flex flex-column w-100 p-3 h-70" style="overflow: auto;">
+            <div class="d-flex flex-column w-100 h-70" style="overflow: auto;" [ngClass]="{'px-1 pt-3':!deviceSettings.isLandscape, 'p-3':deviceSettings.isLandscape}">
                 <ng-container [ngTemplateOutlet]="menuLayout"></ng-container>
             </div>
         </div>
@@ -166,8 +174,8 @@
 <!-- End Mobile layout -->
 
 <ng-template #menuLayout>
-    <div class="d-flex flex-column w-100 flex-grow-1">
-        <ng-container *ngIf="deviceSettings.isMobile" [ngTemplateOutlet]="epgTemplate"></ng-container>
+    <div class="d-flex flex-column w-100 flex-grow-1" [ngClass]="{'px-2 pt-3':deviceSettings.isMobile && !deviceSettings.isLandscape}">
+        <ng-container *ngIf="deviceSettings.isMobile && !deviceSettings.isLandscape" [ngTemplateOutlet]="epgTemplate"></ng-container>
 
         <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'TV', data: tv, sourceIdx: 0}"></ng-container>
         <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'Radio', data: radio, sourceIdx: 1}"></ng-container>
