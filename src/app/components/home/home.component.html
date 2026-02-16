@@ -180,7 +180,7 @@
 
         <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'TV', data: tv, sourceIdx: 0}"></ng-container>
         <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'Radio', data: radio, sourceIdx: 1}"></ng-container>
-        <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'Other', data: favourites, sourceIdx: undefined}"></ng-container>
+        <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'Other', data: others, sourceIdx: 2}"></ng-container>
     </div>
 </ng-template>
 
@@ -235,8 +235,8 @@
                                                     <i *ngIf="channel.options.length===0" class="fas fa-ban me-2"></i>
                                                     {{channel.name}}
                                                 </span>
-                                                <i *ngIf="isFavourite(channel)" class="fas fa-heart cursor-pointer" (click)="toggleFavourite(channel, sourceIdx)"></i>
-                                                <i *ngIf="!isFavourite(channel)" class="far fa-heart cursor-pointer" (click)="toggleFavourite(channel, sourceIdx)"></i>
+                                                <i *ngIf="isFavourite(channel)" class="fas fa-heart cursor-pointer" (click)="toggleOthers(channel, sourceIdx)"></i>
+                                                <i *ngIf="!isFavourite(channel)" class="far fa-heart cursor-pointer" (click)="toggleOthers(channel, sourceIdx)"></i>
                                             </div>
                                         </ng-container>
                                         </div>

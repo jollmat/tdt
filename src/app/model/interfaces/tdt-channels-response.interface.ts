@@ -14,7 +14,7 @@ export interface TdtChannelsAmbit {
 }
 
 export interface TdtChannel {
-    epg_id: string,
+    epg_id?: string,
     extra_info: string[],
     logo: string,
     name: string,

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, of } from 'rxjs';
-import { TdtChannelsResponse, TdtEpgItem } from '../model/interfaces/tdt-channels-response.interface';
+import { TdtChannel, TdtChannelsResponse, TdtEpgItem } from '../model/interfaces/tdt-channels-response.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +34,10 @@ export class TdtchannelsService {
         return this.http.get<TdtChannelsResponse>(fallbackUrl);
       })
     );
+  }
+
+  getCustomChannels(): Observable<TdtChannel[]> {
+    return this.http.get<TdtChannel[]>('data/custom.json');
   }
 
   getEpg(url: string): Observable<TdtEpgItem[]> {

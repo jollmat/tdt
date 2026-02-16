@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { TdtchannelsService } from '../../services/tdtchannels.service';
 import { interval, Subscription } from 'rxjs';
-import { TdtChannel, TdtChannelsResponse, TdtEpgItem, TdtEpgItemEvent } from '../../model/interfaces/tdt-channels-response.interface';
+import { TdtChannel, TdtChannelsCountry, TdtChannelsResponse, TdtEpgItem, TdtEpgItemEvent } from '../../model/interfaces/tdt-channels-response.interface';
 import { CommonModule } from '@angular/common';
 import Hls from 'hls.js';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -16,7 +16,7 @@ import { DeviceDetectorService } from '../../services/device-detector.service';
 })
 export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
 
-  APP_TDT_FAVOURITE_CHANNELS_KEY = 'APP_TDT_FAVOURITE_CHANNELS_KEY';
+  APP_TDT_OTHERS_CHANNELS_KEY = 'APP_TDT_OTHERS_CHANNELS_KEY';
   APP_TDT_SELECTED_CHANNEL_KEY = 'APP_TDT_SELECTED_CHANNEL_KEY';
   APP_TDT_EXPANDED_NODES = 'APP_TDT_EXPANDED_NODES';
 
@@ -32,10 +32,17 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
   currentEpg?: TdtEpgItem;
   epgInterval$!: Subscription;
 
-  favourites: TdtChannelsResponse = {
+  others: TdtChannelsResponse = {
     countries: [
       {
         name: 'Favourites', 
+        ambits: [
+          { name: 'TV', channels: [] },
+          { name: 'Radio', channels: [] }
+        ]
+      },
+      {
+        name: 'Custom',
         ambits: [
           { name: 'TV', channels: [] },
           { name: 'Radio', channels: [] }
@@ -303,11 +310,20 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     
   }
 
-  loadFavourites() {
-    const storedData = localStorage.getItem(this.APP_TDT_FAVOURITE_CHANNELS_KEY);
-    if (storedData) {
-      this.favourites = this.getSortedResponse(JSON.parse(storedData) as TdtChannelsResponse);
-    }
+  loadOthers() {
+    this.tdtChannelsService.getCustomChannels().subscribe((_customChannelsList) => {
+      console.log('loadOthers()', this.others);
+      console.log({_customChannelsList});
+
+      const storedOthers = localStorage.getItem(this.APP_TDT_OTHERS_CHANNELS_KEY);
+      if (storedOthers) {
+        this.others = JSON.parse(storedOthers) as TdtChannelsResponse;
+      }
+
+      this.others.countries[1].ambits[0].channels = _customChannelsList;
+
+      this.others = this.getSortedResponse(this.others);
+    });
   }
 
   loadSelectedChannel() {
@@ -328,27 +344,30 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
   }
 
   isFavourite(tdtChannel: TdtChannel): boolean {
-    return this.favourites.countries[0].ambits[0].channels.some((_tdtChannel) => _tdtChannel.name===tdtChannel.name) ||
-           this.favourites.countries[0].ambits[1].channels.some((_tdtChannel) => _tdtChannel.name===tdtChannel.name);
+    return this.others.countries[0].ambits[0].channels.some((_tdtChannel) => _tdtChannel.name===tdtChannel.name) ||
+           this.others.countries[0].ambits[1].channels.some((_tdtChannel) => _tdtChannel.name===tdtChannel.name);
   }
 
-  toggleFavourite(tdtChannel: TdtChannel, ambitIdx?: number) {
+  toggleOthers(tdtChannel: TdtChannel, ambitIdx?: number) {
     if (ambitIdx!==undefined) {
+      if (ambitIdx!==1) {
+        ambitIdx = 0;
+      }
       if (!this.isFavourite(tdtChannel)) {
-        this.favourites.countries[0].ambits[ambitIdx].channels.push(tdtChannel);
+        this.others.countries[0].ambits[ambitIdx].channels.push(tdtChannel);
       } else {
-        this.favourites.countries[0].ambits[ambitIdx].channels = this.favourites.countries[0].ambits[ambitIdx].channels.filter((_tdtChannel) => _tdtChannel.name!==tdtChannel.name);
+        this.others.countries[0].ambits[ambitIdx].channels = this.others.countries[0].ambits[ambitIdx].channels.filter((_tdtChannel) => _tdtChannel.name!==tdtChannel.name);
       }
     } else {
-      this.favourites.countries[0].ambits[0].channels = this.favourites.countries[0].ambits[0].channels.filter((_tdtChannel) => _tdtChannel.name!==tdtChannel.name);
-      this.favourites.countries[0].ambits[1].channels = this.favourites.countries[0].ambits[1].channels.filter((_tdtChannel) => _tdtChannel.name!==tdtChannel.name);
+      this.others.countries[0].ambits[0].channels = this.others.countries[0].ambits[0].channels.filter((_tdtChannel) => _tdtChannel.name!==tdtChannel.name);
+      this.others.countries[0].ambits[1].channels = this.others.countries[0].ambits[1].channels.filter((_tdtChannel) => _tdtChannel.name!==tdtChannel.name);
     }
-    this.saveFavourites();
+    this.saveOthers();
   }
 
-  saveFavourites() {
-    this.favourites = this.getSortedResponse(this.favourites);
-    localStorage.setItem(this.APP_TDT_FAVOURITE_CHANNELS_KEY, JSON.stringify(this.favourites));
+  saveOthers() {
+    this.others = this.getSortedResponse(this.others);
+    localStorage.setItem(this.APP_TDT_OTHERS_CHANNELS_KEY, JSON.stringify(this.others));
   }
 
   saveExpandedNodes() {
@@ -357,7 +376,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
 
   ngOnInit(): void {
     try {
-      this.loadFavourites();
+      this.loadOthers();
       this.loadSelectedChannel();
       this.loadExpandedNodes();
 
