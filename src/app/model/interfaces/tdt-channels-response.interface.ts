@@ -19,7 +19,8 @@ export interface TdtChannel {
     logo: string,
     name: string,
     options: TdtChannelOption[],
-    web: string
+    web: string,
+    flagClassName?: string
 }
 
 export interface TdtChannelOption {
