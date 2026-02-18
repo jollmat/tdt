@@ -119,7 +119,7 @@ body {
         background-color: rgb(33, 31, 31);
         color: snow;
         width: 100%;
-        font-size: medium;
+        font-size: 18px;
 
         .container {
             width: 100%;
@@ -137,15 +137,10 @@ body {
 
                 .video-wrapper {
                     position: sticky;
+                    min-height: 233px;
                     top:0px;
                     .video-mobile {
                         width:100%;
-                    }
-                    video {
-                        width: 100%;
-                        height: 100% !important;
-                        /*height: auto;    keep aspect ratio */
-                        display: block; /* remove inline gap */
                     }
                 }
 
@@ -155,7 +150,7 @@ body {
                     position: sticky;
                     top: -5px;
                     table {
-                        font-size: small;
+                        font-size: 12px;
                         tbody {
                             tr {
                                 td {

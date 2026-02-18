@@ -122,14 +122,15 @@
 <ng-template #mobileLayout>
     <div class="container d-flex flex-fill w-100" [ngClass]="{'landscape': deviceSettings.isLandscape}">
         <div class="content flex-grow-1 d-flex flex-column align-items-center justify-content-start">
+            
             <div class="d-flex align-items-start w-100 p-0 video-wrapper" 
             [ngClass]="{'h-100 align-items-center justify-content-center':deviceSettings.isLandscape, 'hidden': (channelSourceFormat==='youtube' || channelSourceFormat==='twitch') && safeUrl}">
-                <video #video autoplay playsinline controls class="w-100"></video>
+                <video #video autoplay playsinline controls [width]="deviceSettings.width"></video>
             </div>
            
             <ng-container *ngIf="(channelSourceFormat==='youtube' || channelSourceFormat==='twitch') && safeUrl">
                 <iframe
-                    width="640"
+                    [width]="deviceSettings.width"
                     height="360"
                     [src]="safeUrl"
                     title="Video player"
@@ -145,7 +146,7 @@
                 </ng-container>
             </div>
             <ng-container *ngIf="!deviceSettings.isLandscape">
-                <div class="d-flex flex-column w-100 h-70" style="overflow: auto;" [ngClass]="{'px-1 pt-3':!deviceSettings.isLandscape, 'p-3':deviceSettings.isLandscape}">
+                <div class="d-flex flex-column w-100 h-70" style="overflow: auto;" [ngClass]="{'pt-1':!deviceSettings.isLandscape, 'p-3':deviceSettings.isLandscape}">
                     <ng-container [ngTemplateOutlet]="menuLayout"></ng-container>
                 </div>
             </ng-container>
@@ -156,7 +157,7 @@
 
 <ng-template #menuLayout>
     <div class="d-flex flex-column w-100 flex-grow-1" [ngClass]="{'px-2 pt-3':deviceSettings.isMobile && !deviceSettings.isLandscape}">
-        <ng-container *ngIf="deviceSettings.isMobile && !deviceSettings.isLandscape" [ngTemplateOutlet]="epgTemplate"></ng-container>
+        <ng-container *ngIf="false && deviceSettings.isMobile && !deviceSettings.isLandscape" [ngTemplateOutlet]="epgTemplate"></ng-container>
 
         <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'TV', data: tv, sourceIdx: 0}"></ng-container>
         <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'Radio', data: radio, sourceIdx: 1}"></ng-container>

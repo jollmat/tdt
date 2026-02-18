@@ -73,12 +73,16 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     isMobile: boolean,
     isDesktop: boolean,
     isTablet: boolean,
-    isLandscape: boolean
+    isLandscape: boolean,
+    width: number,
+    height: number
   } = {
     isMobile: false,
     isDesktop: false,
     isTablet: false,
-    isLandscape: false
+    isLandscape: false,
+    width: 0,
+    height: 0
   }
 
   errors: any[] = [];
@@ -111,6 +115,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     this.deviceDetectionMobileSubscription = this.deviceDetactorService.isMobile.subscribe({
       next: (_res) => {
         this.deviceSettings.isMobile = _res;
+        this.checkDeviceDimensions();
       }, error: (err) => {
         this.errors.push(err);
       }
@@ -118,6 +123,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     this.deviceDetectionDesktopSubscription = this.deviceDetactorService.isDesktop.subscribe({
       next: (_res) => {
         this.deviceSettings.isDesktop = _res;
+        this.checkDeviceDimensions();
       }, error: (err) => {
         this.errors.push(err);
       }
@@ -125,6 +131,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     this.deviceDetectionTabletSubscription = this.deviceDetactorService.isTablet.subscribe({
       next: (_res) => {
         this.deviceSettings.isTablet = _res;
+        this.checkDeviceDimensions();
       }, error: (err) => {
         this.errors.push(err);
       }
@@ -132,12 +139,19 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     this.deviceDetectionLandscapeSubscription = this.deviceDetactorService.isLandscape.subscribe({
       next: (_res) => {
         this.deviceSettings.isLandscape = _res;
+        this.checkDeviceDimensions();
       }, error: (err) => {
         this.errors.push(err);
       }
     });
 
     this.loadEpg();
+  }
+
+  private checkDeviceDimensions() {
+    console.log('checkDeviceDimensions()', {width: window.innerWidth, height: window.innerHeight});
+    this.deviceSettings.width = window.innerWidth;
+    this.deviceSettings.height = window.innerHeight;
   }
 
   private loadEpg() {
