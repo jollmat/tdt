@@ -13,6 +13,13 @@ export class TdtchannelsService {
   static CLOUDFLARE_WORKER_CORS_URL = 'https://fragrant-shape-d81c.joanlloria.workers.dev';
   static CLOUDFLARE_WORKER_YOUTUBE_ID_URL = "https://still-flower-ecbc.joanlloria.workers.dev";
 
+  APP_TDT_YOUTUBE_URLS_CACHED_KEY = 'APP_TDT_YOUTUBE_URLS_CACHED_KEY';
+
+  cachedYoutubeUrls: {
+    requestedUrl: string,
+    finalUrl: string
+  }[] = [];
+
   static countriesFlags: { countryName: string, className: string }[] = [
     {countryName: 'UK', className: 'fi fi-gb'},
     {countryName: 'Italia', className: 'fi fi-it'},
@@ -73,15 +80,40 @@ export class TdtchannelsService {
     if (!match) {
       return of ({});
     }
-    const youtubeVideoId = match[1];
-    const url = TdtchannelsService.CLOUDFLARE_WORKER_YOUTUBE_ID_URL+'?channelId='+youtubeVideoId;
-    return this.http.get<{videoId: string}>(url).pipe(
-      map(res => `https://www.youtube.com/embed/${res.videoId}`),
-      catchError(err => {
-        console.warn(`API failed (CORS?)`, err);
-        return err;
-      })
-    );
+
+    const storedUrls = localStorage.getItem(this.APP_TDT_YOUTUBE_URLS_CACHED_KEY);
+    if (storedUrls) {
+      this.cachedYoutubeUrls = JSON.parse(storedUrls) as {
+        requestedUrl: string,
+        finalUrl: string
+      }[];
+    }
+
+    const cachedUrl = this.cachedYoutubeUrls.find((_url) => _url.requestedUrl===youtubeUrl);
+    if (cachedUrl) {
+      return of(cachedUrl.finalUrl);
+    } else {
+      const youtubeVideoId = match[1];
+      const url = TdtchannelsService.CLOUDFLARE_WORKER_YOUTUBE_ID_URL+'?channelId='+youtubeVideoId;
+      return this.http.get<{videoId: string}>(url).pipe(
+        map(res => {
+          if (res.videoId) {
+            console.log('VIDEO ID', res.videoId);
+            const resUrl = `https://www.youtube.com/embed/${res.videoId}`;
+            this.cachedYoutubeUrls.push({requestedUrl:youtubeUrl, finalUrl: resUrl});
+            localStorage.setItem(this.APP_TDT_YOUTUBE_URLS_CACHED_KEY, JSON.stringify(this.cachedYoutubeUrls));
+            return resUrl;
+          } else {
+            console.log('VIDEO ID', res.videoId);
+            return '';
+          }
+        }),
+        catchError(err => {
+          console.warn(`API failed (CORS?)`, err);
+          return err;
+        })
+      );
+    }
   }
 
   public static getChannelCountryName(channelName: string): string {

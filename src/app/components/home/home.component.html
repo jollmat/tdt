@@ -79,19 +79,13 @@
         <!-- Content -->
         <div class="content flex-grow-1 d-flex flex-column align-items-center justify-content-center" [ngClass]="{'justify-content-around': deviceSettings.isLandscape}">
             
-            <div class="d-flex flex-column justify-content-center align-items-center w-100" style="overflow: hidden;">
+            <div class="d-flex flex-column justify-content-center align-items-center w-100" style="overflow: hidden;" [ngClass]="{'hidden': channelSourceFormat==='youtube' && safeUrl}">
                 <ng-container *ngIf="deviceSettings.isLandscape" [ngTemplateOutlet]="channelInfo"></ng-container>
                 <video #video controls autoplay muted playsinline width="600"></video>
                 <ng-container [ngTemplateOutlet]="epgTemplate"></ng-container>
             </div>
 
             <ng-container *ngIf="channelSourceFormat==='youtube' && safeUrl">
-                <iframe
-                    src="https://www.youtube.com/embed/live_stream?channel=UCuPHaVBv7cd-wWx3ztpALQw"
-                    frameborder="0"
-                    allowfullscreen>
-                </iframe>
-                <!--
                 <iframe
                     width="640"
                     height="360"
@@ -101,7 +95,6 @@
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowfullscreen>
                 </iframe>
-                -->
             </ng-container>
             
             <div class="w-100 d-flex justify-content-center align-items-center mt-3" *ngIf="!selectedChannel || selectedChannel?.options?.length===0">
@@ -129,17 +122,12 @@
 <ng-template #mobileLayout>
     <div class="container d-flex flex-fill w-100" [ngClass]="{'landscape': deviceSettings.isLandscape}">
         <div class="content flex-grow-1 d-flex flex-column align-items-center justify-content-start">
-            <div class="d-flex align-items-start w-100 p-0 video-wrapper" [ngClass]="{'h-100 align-items-center justify-content-center':deviceSettings.isLandscape}">
+            <div class="d-flex align-items-start w-100 p-0 video-wrapper" 
+            [ngClass]="{'h-100 align-items-center justify-content-center':deviceSettings.isLandscape, 'hidden': channelSourceFormat==='youtube' && safeUrl}">
                 <video #video autoplay playsinline controls class="w-100"></video>
             </div>
            
             <ng-container *ngIf="channelSourceFormat==='youtube' && safeUrl">
-                <iframe
-                    src="https://www.youtube.com/embed/live_stream?channel=UCuPHaVBv7cd-wWx3ztpALQw"
-                    frameborder="0"
-                    allowfullscreen>
-                </iframe>
-                <!--
                 <iframe
                     width="640"
                     height="360"
@@ -149,7 +137,6 @@
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowfullscreen>
                 </iframe>
-                -->
             </ng-container>
             
             <div class="w-100 d-flex justify-content-center align-items-center mt-3" *ngIf="!selectedChannel || selectedChannel?.options?.length===0">

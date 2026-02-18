@@ -251,11 +251,13 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
 
       if (videoFormat==='youtube') {
 
-        console.log('Requesting Youtube redirect url', videoUrl);
         if (this.videoElement) {
           this.videoElement.src = '';
         }
 
+        console.log('videoUrl', videoUrl);
+
+        console.log('Requesting Youtube redirect url', videoUrl);
         this.youtubeVideoUrlRequestSubscription = this.tdtChannelsService.getYoutubeLiveRedirectUrl(videoUrl).subscribe((_url) => {
           console.log('Youtube videoUrl requested', {videoUrl, _url});
           this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(_url);
