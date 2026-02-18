@@ -35,12 +35,14 @@ export class DeviceDetectorService {
     this.isTablet.next(this.checkTablet());
     this.isLandscape.next(this.checkLandscape());
 
+    /*
     console.log({
       isMobile: this.isMobile.getValue(),
       isTablet: this.isTablet.getValue(),
       isDesktop: this.isDesktop.getValue(),
       isLandscape: this.isLandscape.getValue()
     });
+    */
   }
 
   checkMobile(): boolean {

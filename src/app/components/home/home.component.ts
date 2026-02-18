@@ -94,7 +94,6 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
       next: (_tvChannelsResults) => {
         this.tv = this.getSortedResponse(_tvChannelsResults);
         this.tv = this.configChannelCountries(this.tv);
-        console.log('TV', this.tv);
       }, error: (err) => {
         console.log('Error loading tv channels', err);
         this.errors.push(err);
@@ -104,7 +103,6 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
       next: (_radioSatationsResults) => {
         this.radio = this.getSortedResponse(_radioSatationsResults);
         this.radio = this.configChannelCountries(this.radio);
-        console.log('RADIO', this.radio);
       }, error: (err) => {
         console.log('Error loading radio stations', err);
         this.errors.push(err);
@@ -219,7 +217,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
   }
 
   openChannel(channel?: TdtChannel, sourceIndex?: number) {
-    console.log('openChannel()', channel);
+    // console.log('openChannel()', channel);
 
     this.videoElement = this.videoRef?.nativeElement;
     this.safeUrl = undefined;
@@ -233,8 +231,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     }
 
     const channelChanged = JSON.stringify(channel?.name)!==JSON.stringify(this.selectedChannel?.name);
-    console.log({currentChannel:(this.selectedChannel?.name), newChannel: channel?.name, changed: channelChanged, firstLoad: this.firstLoad()});
-
+    
     if (channelChanged || this.firstLoad()) {
 
       this.selectedChannel = channel;
@@ -255,49 +252,36 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
           this.videoElement.src = '';
         }
 
-        console.log('videoUrl', videoUrl);
-
-        console.log('Requesting Youtube redirect url', videoUrl);
         this.youtubeVideoUrlRequestSubscription = this.tdtChannelsService.getYoutubeLiveRedirectUrl(videoUrl).subscribe((_url) => {
-          console.log('Youtube videoUrl requested', {videoUrl, _url});
           this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(_url);
         });
         
       } else {
 
         if (this.videoElement) {
-          console.log('Video element found');
           if (!this.selectedChannel) {
-            console.log('No selected channel');
             localStorage.removeItem(this.APP_TDT_SELECTED_CHANNEL_KEY);
             this.videoElement.src = videoUrl;
           } else {
-            console.log('Selected channel found');
-
             localStorage.setItem(this.APP_TDT_SELECTED_CHANNEL_KEY, JSON.stringify(this.selectedChannel));
 
-            if (this.channelSourceFormat==='youtube') {
-              
-            } else {
-              this.videoElement.volume = (this.deviceSettings.isDesktop)?0.05:0.2;
+            this.videoElement.volume = (this.deviceSettings.isDesktop)?0.05:0.2;
               if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-                console.log('videoElement.canPlayType: ' + this.videoElement.canPlayType('application/vnd.apple.mpegurl'));
+                //console.log('videoElement.canPlayType: ' + this.videoElement.canPlayType('application/vnd.apple.mpegurl'));
                 // Native HLS support (Safari)
                 this.videoElement.src = videoUrl;
                 if (!this.firstLoad()) {
                   this.videoElement.play().catch((e) => console.warn('Error on play', e, this.videoElement));
                 }
-                console.log('videoElement.src: ', this.videoElement.src);
               } else if (Hls.isSupported()) {
-                console.log('Hls.isSupported: ' + Hls.isSupported());
+                //console.log('Hls.isSupported: ' + Hls.isSupported());
                 // HLS.js fallback for other browsers
                 this.hls = new Hls();
                 this.hls.loadSource(videoUrl);
                 this.hls.attachMedia(this.videoElement);
               } else {
-                console.error('HLS not supported in this browser');
+                //console.error('HLS not supported in this browser');
               }
-            }
           }
           this.firstLoad.set(false);
         } else {
@@ -310,16 +294,11 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
 
   loadOthers() {
     this.customChannelsSubscription = this.tdtChannelsService.getCustomChannels().subscribe((_customChannelsList) => {
-      console.log('loadOthers()', this.others);
-      console.log({_customChannelsList});
-
       const storedOthers = localStorage.getItem(this.APP_TDT_OTHERS_CHANNELS_KEY);
       if (storedOthers) {
         this.others = JSON.parse(storedOthers) as TdtChannelsResponse;
       }
-
       this.others.countries[1].ambits[0].channels = _customChannelsList;
-
       this.others = this.getSortedResponse(this.others);
       this.others = this.configChannelCountries(this.others);
     });
