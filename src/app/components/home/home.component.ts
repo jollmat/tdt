@@ -25,6 +25,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
   customChannelsSubscription?: Subscription;
   epgTvSubscription?: Subscription;
   epgRadioSubscription?: Subscription;
+  youtubeVideoUrlRequestSubscription?: Subscription;
 
   tv?: TdtChannelsResponse;
   radio?: TdtChannelsResponse;
@@ -195,34 +196,6 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     }
   }
 
-  private getSortedResponse(response: TdtChannelsResponse): TdtChannelsResponse {
-    response.countries.forEach((_country) => {
-      _country.ambits.forEach((_ambit) => {
-        _ambit.channels.sort((a,b) => {
-          return a.name.toLowerCase()>b.name.toLowerCase()?1:-1;
-        });
-      })
-    });
-    return response;
-  }
-
-  private configChannelCountries(response: TdtChannelsResponse): TdtChannelsResponse {
-    response.countries.forEach((_country) => {
-      _country.ambits.forEach((_ambit) => {
-        _ambit.channels = _ambit.channels.map((_channel) => {
-          if (_channel.name.match(/\((.*?)\)/)) {
-            _channel.flagClassName = TdtchannelsService.getChannelFlagClassName(_channel.name);
-          } else {
-            //_channel.flagClassName = 'fas fa-earth';
-            _channel.flagClassName = '';
-          }
-          return _channel;
-        });
-      })
-    });
-    return response;
-  }
-  
   toggleExpand(itemId: string) {
     if (this.isExpanded(itemId)) {
       this.expandedItems = this.expandedItems.filter((_itemId) => _itemId!==itemId);
@@ -249,6 +222,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     console.log('openChannel()', channel);
 
     this.videoElement = this.videoRef?.nativeElement;
+    this.safeUrl = undefined;
 
     if (!channel) {
       this.selectedChannel = undefined;
@@ -265,79 +239,71 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
 
       this.selectedChannel = channel;
       this.selectedChannelSourceIdx = sourceIndex;
-      
-      const videoSrc = (this.selectedChannel && this.selectedChannel.options?.length>0)?this.selectedChannel.options[0].url : '';
-      const videoFormat = (this.selectedChannel && this.selectedChannel.options?.length>0)?this.selectedChannel.options[0].format : undefined;
 
+      const videoUrl = (this.selectedChannel && this.selectedChannel.options?.length>0)?this.selectedChannel.options[0].url : '';
+      
+      const videoFormat = (this.selectedChannel && this.selectedChannel.options?.length>0)?this.selectedChannel.options[0].format : undefined;
       this.channelSourceFormat =  videoFormat;
 
       // EPG
       this.currentEpg = this.epg.find((_epg) => _epg.name===this.selectedChannel?.epg_id);
       setTimeout(() => this.scrollToActiveEpgItem(), 500);
 
-      if (this.videoElement) {
-        console.log('Video element found');
-        if (!this.selectedChannel) {
-          console.log('No selected channel');
-          localStorage.removeItem(this.APP_TDT_SELECTED_CHANNEL_KEY);
-          this.videoElement.src = videoSrc;
-        } else {
-          console.log('Selected channel found');
+      if (videoFormat==='youtube') {
 
-          localStorage.setItem(this.APP_TDT_SELECTED_CHANNEL_KEY, JSON.stringify(this.selectedChannel));
+        console.log('Requesting Youtube redirect url', videoUrl);
+        if (this.videoElement) {
+          this.videoElement.src = '';
+        }
 
-          if (this.channelSourceFormat==='youtube') {
-            const youtubeVideoId = this.tdtChannelsService.getYoutubeVideId(videoSrc); // videoSrc
-            this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-              `https://www.youtube-nocookie.com/embed/${youtubeVideoId}`
-            );
+        this.youtubeVideoUrlRequestSubscription = this.tdtChannelsService.getYoutubeLiveRedirectUrl(videoUrl).subscribe((_url) => {
+          console.log('Youtube videoUrl requested', {videoUrl, _url});
+          this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(_url);
+        });
+        
+      } else {
+
+        if (this.videoElement) {
+          console.log('Video element found');
+          if (!this.selectedChannel) {
+            console.log('No selected channel');
+            localStorage.removeItem(this.APP_TDT_SELECTED_CHANNEL_KEY);
+            this.videoElement.src = videoUrl;
           } else {
-            this.videoElement.volume = (this.deviceSettings.isDesktop)?0.05:0.2;
-            if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-              console.log('videoElement.canPlayType: ' + this.videoElement.canPlayType('application/vnd.apple.mpegurl'));
-              // Native HLS support (Safari)
-              this.videoElement.src = videoSrc;
-              if (!this.firstLoad()) {
-                this.videoElement.play().catch((e) => console.warn('Error on play', e, this.videoElement));
-              }
-              console.log('videoElement.src: ', this.videoElement.src);
-            } else if (Hls.isSupported()) {
-              console.log('Hls.isSupported: ' + Hls.isSupported());
-              // HLS.js fallback for other browsers
-              this.hls = new Hls();
-              this.hls.loadSource(videoSrc);
-              this.hls.attachMedia(this.videoElement);
+            console.log('Selected channel found');
+
+            localStorage.setItem(this.APP_TDT_SELECTED_CHANNEL_KEY, JSON.stringify(this.selectedChannel));
+
+            if (this.channelSourceFormat==='youtube') {
+              
             } else {
-              console.error('HLS not supported in this browser');
+              this.videoElement.volume = (this.deviceSettings.isDesktop)?0.05:0.2;
+              if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                console.log('videoElement.canPlayType: ' + this.videoElement.canPlayType('application/vnd.apple.mpegurl'));
+                // Native HLS support (Safari)
+                this.videoElement.src = videoUrl;
+                if (!this.firstLoad()) {
+                  this.videoElement.play().catch((e) => console.warn('Error on play', e, this.videoElement));
+                }
+                console.log('videoElement.src: ', this.videoElement.src);
+              } else if (Hls.isSupported()) {
+                console.log('Hls.isSupported: ' + Hls.isSupported());
+                // HLS.js fallback for other browsers
+                this.hls = new Hls();
+                this.hls.loadSource(videoUrl);
+                this.hls.attachMedia(this.videoElement);
+              } else {
+                console.error('HLS not supported in this browser');
+              }
             }
           }
-        }
-        this.firstLoad.set(false);
-      } else {
-        console.warn('No video element found');
-      }
-    } else {
-      if (this.videoElement) {
-        console.log('Video element found');
-        const videoSrc = (this.selectedChannel && this.selectedChannel.options?.length>0)?this.selectedChannel.options[0].url : '';
-        const videoFormat = (this.selectedChannel && this.selectedChannel.options?.length>0)?this.selectedChannel.options[0].format : undefined;
-        this.channelSourceFormat =  videoFormat;
-        if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-            // Native HLS support (Safari)
-            this.videoElement.src = videoSrc;
-            this.videoElement.play().catch((e) => console.warn('Error on play', e, this.videoElement));
-          } else if (Hls.isSupported()) {
-            // HLS.js fallback for other browsers
-            this.hls = new Hls();
-            this.hls.loadSource(videoSrc);
-            this.hls.attachMedia(this.videoElement);
-          } else {
-            console.error('HLS not supported in this browser');
-          }
           this.firstLoad.set(false);
+        } else {
+          console.warn('No video element found');
+        }
+
       }
     }
-    
   }
 
   loadOthers() {
@@ -405,6 +371,34 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     localStorage.setItem(this.APP_TDT_EXPANDED_NODES, JSON.stringify(this.expandedItems));
   }
 
+  private getSortedResponse(response: TdtChannelsResponse): TdtChannelsResponse {
+    response.countries.forEach((_country) => {
+      _country.ambits.forEach((_ambit) => {
+        _ambit.channels.sort((a,b) => {
+          return a.name.toLowerCase()>b.name.toLowerCase()?1:-1;
+        });
+      })
+    });
+    return response;
+  }
+
+  private configChannelCountries(response: TdtChannelsResponse): TdtChannelsResponse {
+    response.countries.forEach((_country) => {
+      _country.ambits.forEach((_ambit) => {
+        _ambit.channels = _ambit.channels.map((_channel) => {
+          if (_channel.name.match(/\((.*?)\)/)) {
+            _channel.flagClassName = TdtchannelsService.getChannelFlagClassName(_channel.name);
+            _channel.countryName = TdtchannelsService.getChannelCountryName(_channel.name);
+          } else {
+            _channel.flagClassName = '';
+          }
+          return _channel;
+        });
+      })
+    });
+    return response;
+  }
+
   ngOnInit(): void {
     try {
       this.loadOthers();
@@ -436,6 +430,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     this.tvChannelsSubscription?.unsubscribe();
     this.radioStationsSubscription?.unsubscribe();
     this.customChannelsSubscription?.unsubscribe();
+    this.youtubeVideoUrlRequestSubscription?.unsubscribe();
   }
 
 }

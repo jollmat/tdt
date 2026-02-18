@@ -20,7 +20,8 @@ export interface TdtChannel {
     name: string,
     options: TdtChannelOption[],
     web: string,
-    flagClassName?: string
+    flagClassName?: string,
+    countryName?: string
 }
 
 export interface TdtChannelOption {

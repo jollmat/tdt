@@ -5,3 +5,8 @@
     &.tablet { width: 610px; }
     &.desktop { width: 640px; }
 }
+
+div.hidden {
+    opacity:0;
+    display: none !important;
+}
