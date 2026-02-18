@@ -91,5 +91,10 @@
     { "name": "Televizija 5 (Bosnia & Herzegovina)", "options": [{"format":"m3u8", "url":"https://balkanmedia.dynu.net/hls/tv5web.m3u8"}] },
     { "name": "TV1 (Bulgaria)", "options": [{"format":"m3u8", "url":"https://tv1.cloudcdn.bg/temp/livestream.m3u8"}] },
 
-    { "name": "Ruben Martin (Youtube Stream)", "options": [{"format":"youtube", "url":"https://www.youtube.com/live/h8-Azp5Ait4"}] }
+    { "name": "Ruben Martin (Youtube Stream)", "options": [{"format":"youtube", "url":"https://www.youtube.com/watch?v=qxGn7gb1ee0"}] },
+    { "name": "Gerard Romero (Youtube Stream)", "options": [{"format":"youtube", "url":"https://www.youtube.com/watch?v=8WjnGje1xiE"}] },
+    { "name": "Gerard Romero (Twitch Stream)", "options": [{"format":"twitch", "url":"https://player.twitch.tv/?channel=gerardromero"}] },
+    { "name": "Jabiertzo (Twitch Stream)", "options": [{"format":"twitch", "url":"https://player.twitch.tv/?channel=jabiertzo"}] },
+    { "name": "StudyTime (Twitch Stream)", "options": [{"format":"twitch", "url":"https://player.twitch.tv/?channel=studytme"}] },
+    { "name": "La Grada Online (Twitch Stream)", "options": [{"format":"twitch", "url":"https://player.twitch.tv/?channel=lagradaonline"}] }
     ]
