@@ -256,7 +256,20 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
           this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(_url);
         });
         
-      } else {
+      } else if (videoFormat==='twitch') {
+
+        if (this.videoElement) {
+          this.videoElement.src = '';
+        }
+
+        const parent = 'localhost';
+        let channelUrl = videoUrl+'&parent='+parent;
+        console.log(channelUrl);
+        
+        this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(channelUrl);
+        console.log(this.safeUrl);
+        
+      }  else {
 
         if (this.videoElement) {
           if (!this.selectedChannel) {

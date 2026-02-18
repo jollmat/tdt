@@ -75,7 +75,14 @@ export class TdtchannelsService {
   }
 
   getYoutubeLiveRedirectUrl(youtubeUrl: string): Observable<any> {
-    console.log('getYoutubeLiveRedirectUrl()', youtubeUrl);
+    //console.log('getYoutubeLiveRedirectUrl()', youtubeUrl);
+
+    if (youtubeUrl.indexOf('https://www.youtube.com/watch?v=')>-1) { // 8WjnGje1xiE
+      const res = 'https://www.youtube.com/embed/' + youtubeUrl.replace('https://www.youtube.com/watch?v=','');
+      //console.log('getYoutubeLiveRedirectUrl', res);
+      return of(res); // 
+    }
+
     const match = youtubeUrl.match(/\/channel\/([^\/]+)\/live/);
     if (!match) {
       return of ({});
