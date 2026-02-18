@@ -89,5 +89,7 @@
     { "name": "BX1 (Belgium)", "options": [{"format":"m3u8", "url":"https://59959724487e3.streamlock.net/stream/live/playlist.m3u8"}] },
     { "name": "RTV HB (Bosnia & Herzegovina)", "options": [{"format":"m3u8", "url":"https://prd-hometv-live-open.spectar.tv/ERO_1_083/playlist.m3u8"}] },
     { "name": "Televizija 5 (Bosnia & Herzegovina)", "options": [{"format":"m3u8", "url":"https://balkanmedia.dynu.net/hls/tv5web.m3u8"}] },
-    { "name": "TV1 (Bulgaria)", "options": [{"format":"m3u8", "url":"https://tv1.cloudcdn.bg/temp/livestream.m3u8"}] }
+    { "name": "TV1 (Bulgaria)", "options": [{"format":"m3u8", "url":"https://tv1.cloudcdn.bg/temp/livestream.m3u8"}] },
+
+    { "name": "Ruben Martin (Youtube Stream)", "options": [{"format":"youtube", "url":"https://www.youtube.com/live/h8-Azp5Ait4"}] }
     ]
