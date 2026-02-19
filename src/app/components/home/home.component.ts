@@ -1,16 +1,18 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { TdtchannelsService } from '../../services/tdtchannels.service';
-import { interval, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, interval, Subscription, switchMap } from 'rxjs';
 import { TdtChannel, TdtChannelsCountry, TdtChannelsResponse, TdtEpgItem, TdtEpgItemEvent } from '../../model/interfaces/tdt-channels-response.interface';
 import { CommonModule } from '@angular/common';
 import Hls from 'hls.js';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DeviceDetectorService } from '../../services/device-detector.service';
+import { FormControl } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -89,6 +91,11 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
 
   firstLoad = signal(true);
 
+  @ViewChild('searchInput') input!: ElementRef<HTMLInputElement>;
+  searchControl = new FormControl('');
+  searchResults: TdtChannel[] = [];
+  isSearchOpen = signal(false);
+
   constructor(
     private readonly tdtChannelsService: TdtchannelsService,
     private readonly sanitizer: DomSanitizer,
@@ -148,8 +155,54 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     this.loadEpg();
   }
 
+  doSearch() {
+    this.searchResults = [];
+    console.log('doSearch()', this.searchControl.value);
+    if (this.searchControl.value && this.searchControl.value.length>0) {
+      if (this.tv) {
+        this.getSearchResults(this.tv, 0);
+      }
+      if (this.radio) {
+        this.getSearchResults(this.radio, 1);
+      }
+      if (this.others) {
+        this.getSearchResults(this.others, 2);
+      }
+    }
+    console.log(this.searchResults);
+  }
+
+  private getSearchResults(tdtChannelsResponse: TdtChannelsResponse, sourceIndex: number) {
+    const value = (this.searchControl.value && this.searchControl.value.length>0)?this.searchControl.value:undefined;
+    if (value) {
+      tdtChannelsResponse.countries.forEach((_country) => {
+        if (_country.name!=='Favourites') {
+          _country.ambits.forEach((_ambit) => {
+            _ambit.channels.forEach((_channel) => {
+              const channelFound = this.searchResults.some((_result) => _result.name===_channel.name);
+              if (!channelFound && _channel.name.toLowerCase().indexOf(value.toLocaleLowerCase())>=0) {
+                _channel.sourceIndex = sourceIndex;
+                this.searchResults.push(_channel);
+              }
+            });
+          });
+        }
+      });
+    }
+  }
+
+  openSearch() {
+    this.isSearchOpen.set(true);
+    setTimeout(() => {
+      this.input.nativeElement.focus();
+    }, 200);
+  }
+
+  closeSearch() {
+    this.isSearchOpen.set(false);
+  }
+
   private checkDeviceDimensions() {
-    console.log('checkDeviceDimensions()', {width: window.innerWidth, height: window.innerHeight});
     this.deviceSettings.width = window.innerWidth;
     this.deviceSettings.height = window.innerHeight;
   }
@@ -231,7 +284,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
   }
 
   openChannel(channel?: TdtChannel, sourceIndex?: number) {
-    // console.log('openChannel()', channel);
+    console.log('openChannel()', channel);
 
     this.videoElement = this.videoRef?.nativeElement;
     this.safeUrl = undefined;
@@ -298,7 +351,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
                 // Native HLS support (Safari)
                 this.videoElement.src = videoUrl;
                 if (!this.firstLoad()) {
-                  this.videoElement.play().catch((e) => console.warn('Error on play', e, this.videoElement));
+                  // this.videoElement.play().catch((e) => console.warn('Error on play', e, this.videoElement));
                 }
               } else if (Hls.isSupported()) {
                 //console.log('Hls.isSupported: ' + Hls.isSupported());

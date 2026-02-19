@@ -18,9 +18,14 @@
     <div class="container d-flex flex-fill w-100">
         <!-- Left Menu -->
         <div class="menu d-flex flex-column align-items-end gap-2">
-            <div class="w-100 d-flex align-items-center">
-                <button class="btn btn-sm btn-danger mb-3" *ngIf="!(expandedItems.length===0 && expandedItemsBk.length>0)" [disabled]="expandedItems.length===0" (click)="collapseAll()">CollapseAll</button>
-                <button class="btn btn-sm btn-danger mb-3" *ngIf="expandedItems.length===0 && expandedItemsBk.length>0" (click)="restoreCollapsed()">Restore collapsed</button>
+            <div class="w-100 d-flex align-items-center justify-content-between menu-buttons py-2">
+                <div class="d-flex align-items-center">
+                    <ng-container *ngIf="searchResults.length===0">
+                        <button class="btn btn-sm btn-danger mb-3" *ngIf="!(expandedItems.length===0 && expandedItemsBk.length>0)" [disabled]="expandedItems.length===0" (click)="collapseAll()">CollapseAll</button>
+                        <button class="btn btn-sm btn-danger mb-3" *ngIf="expandedItems.length===0 && expandedItemsBk.length>0" (click)="restoreCollapsed()">Restore collapsed</button>
+                    </ng-container>
+                </div>
+                <button class="btn btn-sm btn-secondary mb-3" (click)="openSearch()"><i class="fas fa-search"></i></button>
             </div>
             <ng-container [ngTemplateOutlet]="menuLayout"></ng-container>
         </div>
@@ -68,9 +73,14 @@
         <!-- Left Menu -->
         <ng-container *ngIf="deviceSettings.isLandscape">
             <div class="menu d-flex flex-column align-items-end gap-2">
-                <div class="w-100 d-flex align-items-center">
-                    <button class="btn btn-sm btn-danger mb-3" *ngIf="!(expandedItems.length===0 && expandedItemsBk.length>0)" [disabled]="expandedItems.length===0" (click)="collapseAll()">CollapseAll</button>
-                    <button class="btn btn-sm btn-danger mb-3" *ngIf="expandedItems.length===0 && expandedItemsBk.length>0" (click)="restoreCollapsed()">Restore collapsed</button>
+                <div class="w-100 d-flex align-items-center justify-content-between menu-buttons py-2">
+                    <div class="d-flex align-items-center">
+                        <ng-container *ngIf="searchResults.length===0">
+                            <button class="btn btn-sm btn-danger mb-3" *ngIf="!(expandedItems.length===0 && expandedItemsBk.length>0)" [disabled]="expandedItems.length===0" (click)="collapseAll()">CollapseAll</button>
+                            <button class="btn btn-sm btn-danger mb-3" *ngIf="expandedItems.length===0 && expandedItemsBk.length>0" (click)="restoreCollapsed()">Restore collapsed</button>
+                        </ng-container>
+                    </div>
+                    <button class="btn btn-sm btn-secondary mb-3" (click)="openSearch()"><i class="fas fa-search"></i></button>
                 </div>
                 <ng-container [ngTemplateOutlet]="menuLayout"></ng-container>
             </div>
@@ -155,16 +165,61 @@
 </ng-template>
 <!-- End Mobile layout -->
 
+<!-- Menu layout -->
 <ng-template #menuLayout>
     <div class="d-flex flex-column w-100 flex-grow-1" [ngClass]="{'px-2 pt-3':deviceSettings.isMobile && !deviceSettings.isLandscape}">
         <ng-container *ngIf="false && deviceSettings.isMobile && !deviceSettings.isLandscape" [ngTemplateOutlet]="epgTemplate"></ng-container>
 
-        <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'TV', data: tv, sourceIdx: 0}"></ng-container>
-        <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'Radio', data: radio, sourceIdx: 1}"></ng-container>
-        <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'Other', data: others, sourceIdx: 2}"></ng-container>
+        <ng-container *ngIf="deviceSettings.isMobile && !deviceSettings.isLandscape">
+            <div class="w-100 d-flex align-items-center justify-content-between menu-buttons pt-4 pb-0">
+                <div class="d-flex align-items-center">
+                    <ng-container *ngIf="searchResults.length===0">
+                        <button class="btn btn-sm btn-danger mb-3" *ngIf="!(expandedItems.length===0 && expandedItemsBk.length>0)" [disabled]="expandedItems.length===0" (click)="collapseAll()">CollapseAll</button>
+                        <button class="btn btn-sm btn-danger mb-3" *ngIf="expandedItems.length===0 && expandedItemsBk.length>0" (click)="restoreCollapsed()">Restore collapsed</button>
+                    </ng-container>
+                </div>
+                <button class="btn btn-sm btn-secondary mb-3" (click)="openSearch()"><i class="fas fa-search"></i></button>
+            </div>
+        </ng-container>
+        
+        <ng-container *ngIf="searchResults.length===0">
+            <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'TV', data: tv, sourceIdx: 0}"></ng-container>
+            <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'Radio', data: radio, sourceIdx: 1}"></ng-container>
+            <ng-container [ngTemplateOutlet]="menuTemplate" [ngTemplateOutletContext]="{title: 'Other', data: others, sourceIdx: 2}"></ng-container>
+        </ng-container>
+        <ng-container [ngTemplateOutlet]="searchResultsTemplate" *ngIf="searchResults.length>0"></ng-container>
+
+        <div class="search_overlay" *ngIf="isSearchOpen()" (click)="closeSearch()">
+            <div class="search_modal" (click)="$event.stopPropagation()">
+                <div class="my-2">
+                    <div class="d-flex input-group">
+                        <input
+                        #searchInput
+                        type="text"
+                        class="form-control"
+                        (keydown.enter)="doSearch();closeSearch()"
+                        [formControl]="searchControl"
+                        placeholder="Search channel/station...">
+                        <button
+                            *ngIf="searchControl.value && searchControl.value.length>0"
+                            class="btn btn-secondary"
+                            type="button"
+                            (click)="searchControl.reset()">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+                <div class="d-flex w-100 gap-2 justify-content-end align-items-center">
+                    <button class="btn btn-light btn-danger" (click)="closeSearch()">Close</button>
+                    <button class="btn btn-sm btn-danger" (click)="doSearch();closeSearch()">Search</button>
+                </div>
+            </div>
+        </div>
     </div>
 </ng-template>
+<!-- EndMenu layout -->
 
+<!-- Menu template -->
 <ng-template let-title="title" let-data="data" let-sourceIdx="sourceIdx" #menuTemplate>
     <div class="d-flex flex-column w-100 mb-2">
         <div class="d-flex flex-column w-100">
@@ -205,24 +260,7 @@
                                         <ng-container *ngIf="isExpanded(title.replace(' ','_')+'_'+country.name.replace(' ','_')+'_'+ambit.name.replace(' ', '_'))">
                                             <div class="w-100 d-flex flex-column channel-list gap-2">
                                             <ng-container *ngFor="let channel of ambit.channels">
-                                                <div class="d-flex justify-content-between align-items-center w-100 pe-2 channel-line" [ngClass]="{'active': selectedChannel!==undefined && selectedChannel.name===channel.name}">
-                                                    <span class="cursor-pointer channel text-truncate" (click)="openChannel(channel, sourceIdx)">
-                                                        <i *ngIf="channel.flagClassName?.length>0" [title]="channel.countryName" class="{{channel.flagClassName}} me-2"></i>
-
-                                                        <i *ngIf="channel.options.length>0 && channel.options[0].format==='m3u8'" class="fas fa-tv text-light cursor-pointer me-2"></i>
-                                                        <i *ngIf="channel.options.length>0 && channel.options[0].format==='youtube'" class="fab fa-youtube text-danger cursor-pointer me-2"></i>
-                                                        <i *ngIf="channel.options.length>0 && channel.options[0].format==='twitch'" class="fab fa-twitch cursor-pointer me-2"></i>
-                                                        <i *ngIf="channel.options.length>0 && channel.options[0].format==='stream'" class="fas fa-wifi text-light cursor-pointer me-2"></i>
-                                                        <i *ngIf="channel.options.length>0 && channel.options[0].format==='acc'" class="fas fa-music text-light cursor-pointer me-2"></i>
-                                                        <i *ngIf="channel.options.length>0 && channel.options[0].format==='aac'" class="fas fa-music text-light cursor-pointer me-2"></i>
-                                                        <i *ngIf="channel.options.length>0 && channel.options[0].format==='mp3'" class="fas fa-music text-light cursor-pointer me-2"></i>
-                                                        
-                                                        <i *ngIf="channel.options.length===0" class="fas fa-ban me-2"></i>
-                                                        {{channel.name}}
-                                                    </span>
-                                                    <i *ngIf="isFavourite(channel)" class="fas fa-heart cursor-pointer" (click)="toggleOthers(channel, sourceIdx)"></i>
-                                                    <i *ngIf="!isFavourite(channel)" class="far fa-heart cursor-pointer" (click)="toggleOthers(channel, sourceIdx)"></i>
-                                                </div>
+                                                <ng-container [ngTemplateOutlet]="menuChannelTemplate" [ngTemplateOutletContext]="{channel, sourceIdx}"></ng-container>
                                             </ng-container>
                                             </div>
                                         </ng-container>
@@ -243,7 +281,44 @@
         </div>
     </div>
 </ng-template>
+<!-- End Menu template -->
 
+<!-- Menu channel Template -->
+ <ng-template let-channel="channel" let-sourceIdx="sourceIdx" #menuChannelTemplate>
+    <div class="d-flex justify-content-between align-items-center w-100 pe-2 channel-line" [ngClass]="{'active': selectedChannel!==undefined && selectedChannel.name===channel.name}">
+        <span class="cursor-pointer channel text-truncate" (click)="openChannel(channel, channel.sourceIndex || sourceIdx)">
+            <i *ngIf="channel.flagClassName?.length>0" [title]="channel.countryName" class="{{channel.flagClassName}} me-2"></i>
+
+            <i *ngIf="channel.options.length>0 && channel.options[0].format==='m3u8'" class="fas fa-tv text-light cursor-pointer me-2"></i>
+            <i *ngIf="channel.options.length>0 && channel.options[0].format==='youtube'" class="fab fa-youtube text-danger cursor-pointer me-2"></i>
+            <i *ngIf="channel.options.length>0 && channel.options[0].format==='twitch'" class="fab fa-twitch cursor-pointer me-2"></i>
+            <i *ngIf="channel.options.length>0 && channel.options[0].format==='stream'" class="fas fa-wifi text-light cursor-pointer me-2"></i>
+            <i *ngIf="channel.options.length>0 && channel.options[0].format==='acc'" class="fas fa-music text-light cursor-pointer me-2"></i>
+            <i *ngIf="channel.options.length>0 && channel.options[0].format==='aac'" class="fas fa-music text-light cursor-pointer me-2"></i>
+            <i *ngIf="channel.options.length>0 && channel.options[0].format==='mp3'" class="fas fa-music text-light cursor-pointer me-2"></i>
+            
+            <i *ngIf="channel.options.length===0" class="fas fa-ban me-2"></i>
+            {{channel.name}}
+        </span>
+        <i *ngIf="isFavourite(channel)" class="fas fa-heart cursor-pointer" (click)="toggleOthers(channel, channel.sourceIndex || sourceIdx)"></i>
+        <i *ngIf="!isFavourite(channel)" class="far fa-heart cursor-pointer" (click)="toggleOthers(channel, channel.sourceIndex || sourceIdx)"></i>
+    </div>
+ </ng-template>
+ <!-- End Menu channel Template -->
+
+<!-- Search results Template -->
+<ng-template let-title="title" let-data="data" #searchResultsTemplate>
+    <div class="d-flex flex-column w-100 mb-2">
+        <div class="d-flex flex-column w-100 px-2">
+            <ng-container *ngFor="let channel of searchResults">
+                <ng-container [ngTemplateOutlet]="menuChannelTemplate" [ngTemplateOutletContext]="{channel}"></ng-container>
+            </ng-container>
+        </div>
+    </div>
+</ng-template>
+<!-- End Search results Template -->
+
+<!-- Channel Info Template -->
 <ng-template #channelInfo>
     <div class="d-flex justify-content-between align-items-center mb-1 selected-channel-info p-3" 
     [ngClass]="{'desktop': deviceSettings.isDesktop,'tablet':deviceSettings.isTablet,'mobile':deviceSettings.isMobile}">
@@ -256,7 +331,9 @@
         </ng-container>
     </div>
 </ng-template>
+<!-- End Channel Info Template -->
 
+<!-- EPG Template -->
 <ng-template #epgTemplate>
     <ng-container *ngIf="currentEpg && currentEpg.events && currentEpg.events.length>0">
 
@@ -298,8 +375,10 @@
 
     </ng-container>
 </ng-template>
+<!-- End EPG Template -->
 
 <!-- EPG tooltip Template -->
 <ng-template #tooltipTemplate let-img>
   <img [src]="img" width="120" />
 </ng-template>
+<!-- End EPG tooltip Template -->

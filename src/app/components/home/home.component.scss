@@ -10,3 +10,27 @@ div.hidden {
     opacity:0;
     display: none !important;
 }
+
+.search_overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6); /* transparency */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.search_modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+}
+
+.menu-buttons {
+    position: sticky;
+    top: -15px;
+    background-color: rgb(33, 31, 31);
+}

@@ -22,6 +22,7 @@ export interface TdtChannel {
     web: string,
     flagClassName?: string,
     countryName?: string
+    sourceIndex?:number
 }
 
 export interface TdtChannelOption {
