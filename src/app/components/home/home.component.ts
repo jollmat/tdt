@@ -58,6 +58,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
   expandedItems: string[] = [];
   expandedItemsBk: string[] = [];
 
+  @ViewChild('iFrame') iframe!: ElementRef;
   @ViewChild('video', { static: false }) videoRef?: ElementRef<HTMLVideoElement>;
   videoElement?: HTMLVideoElement;
   private hls?: Hls;
@@ -203,8 +204,10 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
   }
 
   private checkDeviceDimensions() {
-    this.deviceSettings.width = window.innerWidth;
-    this.deviceSettings.height = window.innerHeight;
+    setTimeout(() => {
+      this.deviceSettings.width = window.innerWidth;
+      this.deviceSettings.height = window.innerHeight;
+    }, 400);
   }
 
   private loadEpg() {
@@ -315,6 +318,12 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
 
       if (videoFormat==='youtube') {
 
+        if (!this.selectedChannel) {
+          localStorage.removeItem(this.APP_TDT_SELECTED_CHANNEL_KEY);
+        } else {
+          localStorage.setItem(this.APP_TDT_SELECTED_CHANNEL_KEY, JSON.stringify(this.selectedChannel));
+        }
+
         if (this.videoElement) {
           this.videoElement.src = '';
         }
@@ -324,6 +333,12 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
         });
         
       } else if (videoFormat==='twitch') {
+
+        if (!this.selectedChannel) {
+          localStorage.removeItem(this.APP_TDT_SELECTED_CHANNEL_KEY);
+        } else {
+          localStorage.setItem(this.APP_TDT_SELECTED_CHANNEL_KEY, JSON.stringify(this.selectedChannel));
+        }
 
         if (this.videoElement) {
           this.videoElement.src = '';
@@ -367,7 +382,6 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
         } else {
           console.warn('No video element found');
         }
-
       }
     }
   }

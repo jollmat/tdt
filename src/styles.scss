@@ -211,3 +211,10 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .fa-twitch { color: rgb(198, 49, 178); }
+
+@media (orientation: landscape) {
+  #iframe {
+    width: 100vw;
+    height: 100vh;
+  }
+}
