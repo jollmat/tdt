@@ -140,15 +140,17 @@
             </div>
            
             <ng-container *ngIf="(channelSourceFormat==='youtube' || channelSourceFormat==='twitch') && safeUrl">
-                <iframe
-                    [width]="deviceSettings.width"
-                    height="360"
-                    [src]="safeUrl"
-                    title="Video player"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowfullscreen>
-                </iframe>
+                <div class="d-flex align-items-start w-100 p-0 video-wrapper">
+                    <iframe
+                        [width]="deviceSettings.width"
+                        [height]="233"
+                        [src]="safeUrl"
+                        title="Video player"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen>
+                    </iframe>
+                </div>
             </ng-container>
             
             <div class="w-100 d-flex justify-content-center align-items-center mt-3" *ngIf="!selectedChannel || selectedChannel?.options?.length===0">
