@@ -133,11 +133,11 @@ body {
             }
             .content {
                 height: calc(100vh);
-                padding: 0px 0px 15px 0px;
+                padding: 0px;
 
                 .video-wrapper {
                     position: sticky;
-                    min-height: 233px;
+                    height: 233px;
                     top:0px;
                     .video-mobile {
                         width:100%;
@@ -192,7 +192,6 @@ body {
         .channel { 
             padding-left: 20px;
             padding-right: 5px;
-            width: fit-content; 
             color: deepskyblue; 
             border-left: 1px dashed $borderColor;
             i { &.fa-ban { color: dimgray; } }

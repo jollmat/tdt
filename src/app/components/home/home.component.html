@@ -1,6 +1,7 @@
 <ng-container *ngIf="deviceSettings.isDesktop" [ngTemplateOutlet]="desktopLayout"></ng-container>
 <ng-container *ngIf="deviceSettings.isTablet" [ngTemplateOutlet]="tabletLayout"></ng-container>
-<ng-container *ngIf="deviceSettings.isMobile" [ngTemplateOutlet]="mobileLayout"></ng-container>
+<ng-container *ngIf="deviceSettings.isMobile && !deviceSettings.isLandscape" [ngTemplateOutlet]="mobileLayoutPortrait"></ng-container>
+<ng-container *ngIf="deviceSettings.isMobile && deviceSettings.isLandscape" [ngTemplateOutlet]="mobileLayoutLandscape"></ng-container>
 
 <ng-container *ngIf="errors.length>0">
     <div class="d-flex flex-column w-100 alert alert-danger p-3">
@@ -128,13 +129,48 @@
 </ng-template>
 <!-- End Tablet layout -->
 
-<!-- Mobile layout -->
-<ng-template #mobileLayout>
-    <div class="container d-flex flex-fill w-100" [ngClass]="{'landscape': deviceSettings.isLandscape}">
+<!-- Mobile layout (Portrait) -->
+<ng-template #mobileLayoutPortrait>
+    <div class="container d-flex w-100">
         <div class="content flex-grow-1 d-flex flex-column align-items-center justify-content-start">
             
             <div class="d-flex align-items-start w-100 p-0 video-wrapper" 
-            [ngClass]="{'h-100 align-items-center justify-content-center':deviceSettings.isLandscape, 'hidden': (channelSourceFormat==='youtube' || channelSourceFormat==='twitch') && safeUrl}">
+            [ngClass]="{'hidden': (channelSourceFormat==='youtube' || channelSourceFormat==='twitch') && safeUrl}">
+                <video #video autoplay playsinline controls [width]="deviceSettings.width" [height]="233"></video>
+            </div>
+           
+            <ng-container *ngIf="(channelSourceFormat==='youtube' || channelSourceFormat==='twitch') && safeUrl">
+                <iframe
+                    [width]="deviceSettings.width"
+                    height="360"
+                    [src]="safeUrl"
+                    title="Video player"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen>
+                </iframe>
+            </ng-container>
+            
+            <div class="w-100 d-flex justify-content-center align-items-center mt-3" *ngIf="!selectedChannel || selectedChannel?.options?.length===0">
+                <ng-container *ngIf="selectedChannel?.options?.length===0">
+                    <i class="fas fa-exclamation-circle text-danger me-2"></i><span>Not available URL</span>
+                </ng-container>
+            </div>
+            <div class="d-flex flex-column w-100" style="overflow-y: auto;overflow-x:hidden;">
+                <ng-container [ngTemplateOutlet]="menuLayout"></ng-container>
+            </div>
+        </div>
+    </div>
+</ng-template>
+<!-- End Mobile layout -->
+
+<!-- Mobile layout (Landscape) -->
+<ng-template #mobileLayoutLandscape>
+    <div class="container d-flex w-100 landscape">
+        <div class="content flex-grow-1 d-flex flex-column align-items-center justify-content-start">
+            
+            <div class="d-flex align-items-center justify-content-center w-100 h-100 p-0 video-wrapper" 
+            [ngClass]="{'hidden': (channelSourceFormat==='youtube' || channelSourceFormat==='twitch') && safeUrl}">
                 <video #video autoplay playsinline controls [width]="deviceSettings.width"></video>
             </div>
            
@@ -163,22 +199,22 @@
         </div>
     </div>
 </ng-template>
-<!-- End Mobile layout -->
+<!-- End Mobile layout (Landscape) -->
 
 <!-- Menu layout -->
 <ng-template #menuLayout>
-    <div class="d-flex flex-column w-100 flex-grow-1" [ngClass]="{'px-2 pt-3':deviceSettings.isMobile && !deviceSettings.isLandscape}">
+    <div class="d-flex flex-column w-100 flex-grow-1" [ngClass]="{'px-2':deviceSettings.isMobile && !deviceSettings.isLandscape}">
         <ng-container *ngIf="false && deviceSettings.isMobile && !deviceSettings.isLandscape" [ngTemplateOutlet]="epgTemplate"></ng-container>
 
         <ng-container *ngIf="deviceSettings.isMobile && !deviceSettings.isLandscape">
-            <div class="w-100 d-flex align-items-center justify-content-between menu-buttons pt-4 pb-0">
+            <div class="w-100 d-flex align-items-center justify-content-between menu-buttons py-3 px-1">
                 <div class="d-flex align-items-center">
                     <ng-container *ngIf="searchResults.length===0">
-                        <button class="btn btn-sm btn-danger mb-3" *ngIf="!(expandedItems.length===0 && expandedItemsBk.length>0)" [disabled]="expandedItems.length===0" (click)="collapseAll()">CollapseAll</button>
-                        <button class="btn btn-sm btn-danger mb-3" *ngIf="expandedItems.length===0 && expandedItemsBk.length>0" (click)="restoreCollapsed()">Restore collapsed</button>
+                        <button class="btn btn-sm btn-secondary" *ngIf="!(expandedItems.length===0 && expandedItemsBk.length>0)" [disabled]="expandedItems.length===0" (click)="collapseAll()">CollapseAll</button>
+                        <button class="btn btn-sm btn-secondary" *ngIf="expandedItems.length===0 && expandedItemsBk.length>0" (click)="restoreCollapsed()">Restore collapsed</button>
                     </ng-container>
                 </div>
-                <button class="btn btn-sm btn-secondary mb-3" (click)="openSearch()"><i class="fas fa-search"></i></button>
+                <button class="btn btn-sm btn-secondary" (click)="openSearch()"><i class="fas fa-search"></i></button>
             </div>
         </ng-container>
         
@@ -222,7 +258,7 @@
 <!-- Menu template -->
 <ng-template let-title="title" let-data="data" let-sourceIdx="sourceIdx" #menuTemplate>
     <div class="d-flex flex-column w-100 mb-2">
-        <div class="d-flex flex-column w-100">
+        <div class="d-flex flex-column w-100 px-1">
             <div class="cursor-pointer d-flex align-items-center w-100" (click)="toggleExpand(title.replace(' ','_'))">
                 <div class="expand-icon d-flex justify-content-center me-2">
                     <i class="fas" [ngClass]="{'fa-chevron-down': isExpanded(title.replace(' ','_')), 'fa-chevron-right': !isExpanded(title.replace(' ','_'))}"></i>
@@ -286,7 +322,7 @@
 <!-- Menu channel Template -->
  <ng-template let-channel="channel" let-sourceIdx="sourceIdx" #menuChannelTemplate>
     <div class="d-flex justify-content-between align-items-center w-100 pe-2 channel-line" [ngClass]="{'active': selectedChannel!==undefined && selectedChannel.name===channel.name}">
-        <span class="cursor-pointer channel text-truncate" (click)="openChannel(channel, channel.sourceIndex || sourceIdx)">
+        <div class="d-flex flex-grow-1 align-items-center justify-content-start cursor-pointer channel" (click)="openChannel(channel, channel.sourceIndex || sourceIdx)">
             <i *ngIf="channel.flagClassName?.length>0" [title]="channel.countryName" class="{{channel.flagClassName}} me-2"></i>
 
             <i *ngIf="channel.options.length>0 && channel.options[0].format==='m3u8'" class="fas fa-tv text-light cursor-pointer me-2"></i>
@@ -298,8 +334,8 @@
             <i *ngIf="channel.options.length>0 && channel.options[0].format==='mp3'" class="fas fa-music text-light cursor-pointer me-2"></i>
             
             <i *ngIf="channel.options.length===0" class="fas fa-ban me-2"></i>
-            {{channel.name}}
-        </span>
+            <span class="text-truncate flex-grow-1" style="min-width: 0;max-width: 200px;">{{channel.name}}</span>
+        </div>
         <i *ngIf="isFavourite(channel)" class="fas fa-heart cursor-pointer" (click)="toggleOthers(channel, channel.sourceIndex || sourceIdx)"></i>
         <i *ngIf="!isFavourite(channel)" class="far fa-heart cursor-pointer" (click)="toggleOthers(channel, channel.sourceIndex || sourceIdx)"></i>
     </div>
