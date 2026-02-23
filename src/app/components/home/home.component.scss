@@ -22,11 +22,22 @@ div.hidden {
 }
 
 .search_modal {
-  background: white;
+  background: rgb(33, 31, 31);
+  color: rgb(217, 216, 216);
   padding: 2rem;
   border-radius: 8px;
   width: 400px;
   max-width: 90%;
+
+  .form-control {
+    background-color: #000;
+    color: rgba(217, 216, 216, .6);
+    border-color: rgba(217, 216, 216, .3);
+    &::placeholder {
+        color: rgba(217, 216, 216, .4);
+        font-weight: 200;
+    }
+  }
 }
 
 .menu-buttons {

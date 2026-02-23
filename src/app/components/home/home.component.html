@@ -239,9 +239,9 @@
                         </button>
                     </div>
                 </div>
-                <div class="d-flex w-100 gap-2 justify-content-end align-items-center">
-                    <button class="btn btn-light btn-danger" (click)="closeSearch()">Close</button>
-                    <button class="btn btn-sm btn-danger" (click)="doSearch();closeSearch()">Search</button>
+                <div class="d-flex w-100 gap-2 justify-content-end align-items-center mt-3">
+                    <button class="btn btn-light" [ngClass]="{'btn-sm': !deviceSettings.isMobile}" (click)="closeSearch()">Close</button>
+                    <button class="btn btn-danger" [ngClass]="{'btn-sm': !deviceSettings.isMobile}" (click)="doSearch();closeSearch()">Search</button>
                 </div>
             </div>
         </div>
@@ -336,25 +336,6 @@
     <ng-container *ngIf="deviceSettings.isMobile">
         <div class="d-flex justify-content-between align-items-center w-100 channel-line" [ngClass]="{'active': selectedChannel!==undefined && selectedChannel.name===channel.name}">
             <div class="d-flex align-items-center justify-content-start cursor-pointer channel w-100 py-2 px-3" (click)="openChannel(channel, channel.sourceIndex || sourceIdx)">
-                <!--
-                <div class="d-flex align-items-center justify-content-between w-100">
-                    <div class="d-flex">
-                        <i *ngIf="channel.options.length>0 && channel.options[0].format==='m3u8'" class="fas fa-tv text-light cursor-pointer me-2"></i>
-                        <i *ngIf="channel.options.length>0 && channel.options[0].format==='youtube'" class="fab fa-youtube text-danger cursor-pointer me-2"></i>
-                        <i *ngIf="channel.options.length>0 && channel.options[0].format==='twitch'" class="fab fa-twitch cursor-pointer me-2"></i>
-                        <i *ngIf="channel.options.length>0 && channel.options[0].format==='stream'" class="fas fa-wifi text-light cursor-pointer me-2"></i>
-                        <i *ngIf="channel.options.length>0 && channel.options[0].format==='acc'" class="fas fa-music text-light cursor-pointer me-2"></i>
-                        <i *ngIf="channel.options.length>0 && channel.options[0].format==='aac'" class="fas fa-music text-light cursor-pointer me-2"></i>
-                        <i *ngIf="channel.options.length>0 && channel.options[0].format==='mp3'" class="fas fa-music text-light cursor-pointer me-2"></i>
-                        <i *ngIf="channel.options.length===0" class="fas fa-ban me-2"></i>
-                        <i *ngIf="channel.flagClassName?.length>0" [title]="channel.countryName" class="{{channel.flagClassName}}"></i>
-                    </div>
-                    <div class="d-flex align-items-center text-light">
-                        <i *ngIf="isFavourite(channel)" class="fas fa-heart cursor-pointer" (click)="toggleOthers(channel, channel.sourceIndex || sourceIdx)"></i>
-                        <i *ngIf="!isFavourite(channel)" class="far fa-heart cursor-pointer" (click)="toggleOthers(channel, channel.sourceIndex || sourceIdx)"></i>
-                    </div>
-                </div>
-                -->
                 <i *ngIf="isFavourite(channel)" class="fas fa-heart text-light cursor-pointer me-2" (click)="toggleOthers(channel, channel.sourceIndex || sourceIdx)"></i>
                 <i *ngIf="!isFavourite(channel)" class="far fa-heart text-light cursor-pointer me-2" (click)="toggleOthers(channel, channel.sourceIndex || sourceIdx)"></i>
                 <div class="w-100 text-truncate d-block" style="max-width:{{deviceSettings.width-210}}px;">{{channel.name}}</div>
