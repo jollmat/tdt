@@ -207,6 +207,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
     setTimeout(() => {
       this.deviceSettings.width = window.innerWidth;
       this.deviceSettings.height = window.innerHeight;
+      console.log(this.deviceSettings);
     }, 400);
   }
 
