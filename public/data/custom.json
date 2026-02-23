@@ -88,6 +88,7 @@
     { "name": "Gerard Romero (Twitch Stream)", "options": [{"format":"twitch", "url":"https://player.twitch.tv/?channel=gerardromero"}] },
     { "name": "Jabiertzo (Twitch Stream)", "options": [{"format":"twitch", "url":"https://player.twitch.tv/?channel=jabiertzo"}] },
     { "name": "StudyTime (Twitch Stream)", "options": [{"format":"twitch", "url":"https://player.twitch.tv/?channel=studytme"}] },
+    { "name": "Siro Lopez (Twitch Stream)", "options": [{"format":"twitch", "url":"https://player.twitch.tv/?channel=sirolopez56"}] },
     { "name": "La Grada Online (Twitch Stream)", "options": [{"format":"twitch", "url":"https://player.twitch.tv/?channel=lagradaonline"}] },
     { "name": "Crónica TV (Argentina)", "options": [{"format":"youtube", "url":"https://www.youtube.com/watch?v=sGnaFL_Syl0"}] }
     ]
