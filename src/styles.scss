@@ -181,10 +181,16 @@ body {
     background-color: transparent;
 
     .channel-line {
+        border: 1px solid transparent;
+        border-radius: 4px;
+        margin-bottom: 4px;
+        background-color: #282727;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        &:hover {
+            background-color: #1d1c1c;
+        }
         &.active {
             padding: 3px 0px;
-            border-radius: 10px;
-
             border: 0px solid $borderColor;
             background-color: #000;
             color: yellowgreen;
@@ -193,17 +199,17 @@ body {
             padding-left: 20px;
             padding-right: 5px;
             color: deepskyblue; 
-            border-left: 1px dashed $borderColor;
+            border-left: 1px dashed transparent;
             i { &.fa-ban { color: dimgray; } }
 
             &.desktop {
-                padding-top: 5px;
-                padding-bottom: 5px;
+                padding-top: 10px;
+                padding-bottom: 10px;
                 .channel-name { max-width: 155px; }
             }
             &.tablet {
-                padding-top: 5px;
-                padding-bottom: 5px;
+                padding-top: 10px;
+                padding-bottom: 10px;
                 .channel-name { max-width: 155px; }
             }
             &.mobile {}

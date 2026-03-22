@@ -4,6 +4,10 @@
     &.mobile {  }
     &.tablet { width: 610px; }
     &.desktop { width: 640px; }
+
+    .channel-info-icons {
+      font-size: 25px;
+    }
 }
 
 div.hidden {
