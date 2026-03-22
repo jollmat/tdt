@@ -253,7 +253,7 @@
 <ng-template let-title="title" let-data="data" let-sourceIdx="sourceIdx" #menuTemplate>
     <div class="d-flex flex-column w-100 mb-2">
         <div class="d-flex flex-column w-100 px-1">
-            <div class="cursor-pointer d-flex align-items-center w-100" (click)="toggleExpand(title.replace(' ','_'))">
+            <div class="cursor-pointer d-flex align-items-center w-100 my-1" (click)="toggleExpand(title.replace(' ','_'))">
                 <div class="expand-icon d-flex justify-content-center me-2">
                     <i class="fas" [ngClass]="{'fa-chevron-down': isExpanded(title.replace(' ','_')), 'fa-chevron-right': !isExpanded(title.replace(' ','_'))}"></i>
                 </div>
@@ -264,7 +264,7 @@
                     <!-- Countries -->
                     <ng-container *ngIf="data?.countries">
                         <ng-container *ngFor="let country of data.countries">
-                            <div class="d-flex flex-column w-100 gap-2 country">
+                            <div class="d-flex flex-column w-100 gap-2 country my-1">
                         
                             <div class="cursor-pointer d-flex align-items-center w-100" (click)="toggleExpand(title.replace(' ','_')+'_'+country.name.replace(' ','_'))">
                                 <div class="expand-icon d-flex justify-content-center me-2">
@@ -275,7 +275,7 @@
 
                             <ng-container *ngIf="isExpanded(title.replace(' ','_')+'_'+country.name.replace(' ','_'))">
 
-                                <div class="d-flex flex-column gap-2 ambit">
+                                <div class="d-flex flex-column gap-2 ambit my-1">
 
                                     <!-- Ambits -->
                                     <ng-container *ngFor="let ambit of country.ambits">
