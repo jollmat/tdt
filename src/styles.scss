@@ -195,6 +195,18 @@ body {
             color: deepskyblue; 
             border-left: 1px dashed $borderColor;
             i { &.fa-ban { color: dimgray; } }
+
+            &.desktop {
+                padding-top: 5px;
+                padding-bottom: 5px;
+                .channel-name { max-width: 155px; }
+            }
+            &.tablet {
+                padding-top: 5px;
+                padding-bottom: 5px;
+                .channel-name { max-width: 155px; }
+            }
+            &.mobile {}
         }
     }
 }

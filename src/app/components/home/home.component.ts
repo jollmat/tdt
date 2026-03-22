@@ -30,7 +30,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
   youtubeVideoUrlRequestSubscription?: Subscription;
 
   tv?: TdtChannelsResponse;
-  radio?: TdtChannelsResponse;
+  radio!: TdtChannelsResponse;
 
   epg: TdtEpgItem[] = [];
   currentEpg?: TdtEpgItem;
@@ -421,8 +421,29 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
            this.others.countries[0].ambits[1].channels.some((_tdtChannel) => _tdtChannel.name===tdtChannel.name);
   }
 
+  isRadio(tdtChannel: TdtChannel): boolean {
+    let radioFound = false;
+    this.radio.countries.forEach((_country) => {
+      _country.ambits.forEach((_ambit) => {
+        if(_ambit.channels.some((_channel) => _channel.name===tdtChannel.name)){
+          radioFound = true;
+        }
+      })
+    });
+
+    return radioFound;
+  }
+
   toggleOthers(tdtChannel: TdtChannel, ambitIdx?: number) {
-    if (ambitIdx!==undefined) {
+    console.log('toggleOthers()', {tdtChannel, ambitIdx});
+    if (ambitIdx===undefined && !this.isFavourite(tdtChannel)) {
+      console.log({
+        tdtChannel, 
+        isRadio: this.isRadio(tdtChannel),
+        radio: this.radio
+      });
+      this.others.countries[0].ambits[(!this.isRadio(tdtChannel)?0:1)].channels.push(tdtChannel);
+    } else if (ambitIdx!==undefined) {
       if (ambitIdx!==1) {
         ambitIdx = 0;
       }
@@ -432,6 +453,7 @@ export class HomeComponent implements OnDestroy, OnInit, AfterViewInit {
         this.others.countries[0].ambits[ambitIdx].channels = this.others.countries[0].ambits[ambitIdx].channels.filter((_tdtChannel) => _tdtChannel.name!==tdtChannel.name);
       }
     } else {
+      console.log('Cannel removed');
       this.others.countries[0].ambits[0].channels = this.others.countries[0].ambits[0].channels.filter((_tdtChannel) => _tdtChannel.name!==tdtChannel.name);
       this.others.countries[0].ambits[1].channels = this.others.countries[0].ambits[1].channels.filter((_tdtChannel) => _tdtChannel.name!==tdtChannel.name);
     }
